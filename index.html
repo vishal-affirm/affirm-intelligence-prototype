@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Affirm Intelligence</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #07071a;
+    --surface: #0e0e24;
+    --card-bg: #141432;
+    --card-raised: #1a1a3e;
+    --border: rgba(255,255,255,0.07);
+    --text: #f2f2f8;
+    --text-sec: #9090ae;
+    --text-dim: #5c5c78;
+    --indigo: #4a4af4;
+    --indigo-lt: #6e6ef8;
+    --green: #00d68f;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .phone {
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background: var(--bg);
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Status bar */
+  .sbar {
+    height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 30px;
+    position: sticky; top: 0; z-index: 4;
+    background: var(--bg);
+  }
+  .sbar-time { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+  .sbar-right { display: flex; align-items: center; gap: 5px; }
+  .sbar-right svg { display: block; }
+
+  /* Screens */
+  .scr { min-height: 100vh; transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .3s; }
+  .scr.go-l { position: absolute; inset: 0; transform: translateX(-100%); opacity: 0; pointer-events: none; }
+  .scr.go-r { transform: translateX(100%); opacity: 0; pointer-events: none; }
+
+  /* ─── HOME ─── */
+  .home { }
+
+  .home-glow {
+    position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+    width: 500px; height: 300px;
+    background: radial-gradient(ellipse, rgba(74,74,244,0.18) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+
+  .home-body { position: relative; z-index: 1; padding-bottom: 100px; }
+
+  /* Header */
+  .hdr {
+    padding: 4px 20px 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .logo-affirm svg { display: block; }
+  .hdr-icons { display: flex; gap: 14px; }
+  .hdr-ic {
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .hdr-ic svg { display: block; }
+
+  /* PP */
+  .pp {
+    text-align: center;
+    padding: 28px 20px 24px;
+  }
+  .pp-label {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 14px; color: var(--text-sec); margin-bottom: 8px;
+  }
+  .pp-bolt { display: flex; }
+  .pp-val {
+    font-size: 56px; font-weight: 800; letter-spacing: -3px;
+    display: flex; align-items: baseline; justify-content: center; gap: 6px;
+    line-height: 1;
+  }
+  .pp-info {
+    width: 22px; height: 22px;
+    border: 1.5px solid var(--text-dim);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--text-dim);
+    margin-left: 2px;
+    position: relative; top: -6px;
+  }
+
+  /* Orlando CTA */
+  .orlando-cta {
+    margin: 0 20px 14px;
+    padding: 14px 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 15px; font-weight: 500;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .orlando-cta:hover { background: var(--card-raised); }
+  .orlando-cta .sparkle { display: flex; }
+
+  /* Chips row */
+  .chips {
+    display: flex; gap: 8px;
+    padding: 0 20px 28px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .ch {
+    flex-shrink: 0;
+    padding: 10px 18px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    font-size: 14px; font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .ch:hover { border-color: var(--indigo); background: rgba(74,74,244,0.08); }
+
+  /* Sections */
+  .section-card {
+    margin: 0 14px 20px;
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 20px 16px;
+    border: 1px solid var(--border);
+  }
+
+  .sec-hd {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .sec-tt {
+    font-size: 18px; font-weight: 700; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sec-tt svg { display: block; }
+  .sec-sa {
+    font-size: 14px; color: var(--text-sec); font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; gap: 2px;
+  }
+
+  .prod-row {
+    display: flex; gap: 12px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .prod-row::-webkit-scrollbar { display: none; }
+
+  .prod {
+    flex-shrink: 0; width: 165px;
+    cursor: pointer;
+    transition: transform .2s;
+  }
+  .prod:hover { transform: translateY(-2px); }
+  .prod-img {
+    width: 165px; height: 130px;
+    background: var(--card-bg);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+  }
+  .prod-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .prod-fav {
+    position: absolute; top: 8px; right: 8px;
+    width: 30px; height: 30px;
+    background: rgba(0,0,0,0.45);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .prod-fav svg { display: block; }
+  .prod-name { font-size: 14px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
+  .prod-sub { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .prod-apr { font-size: 13px; color: var(--text-sec); }
+
+  /* Tab bar */
+  .tbar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    height: 84px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-top: 10px;
+    z-index: 5;
+  }
+  .tb {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer;
+    width: 56px;
+  }
+  .tb-ic { height: 24px; display: flex; align-items: center; justify-content: center; }
+  .tb-ic svg { display: block; }
+  .tb-lb { font-size: 10px; font-weight: 600; color: var(--text-dim); }
+  .tb.on .tb-lb { color: var(--text); }
+
+  /* ─── CHAT ─── */
+  .chat-scr { display: flex; flex-direction: column; height: 100vh; position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--bg); z-index: 10; }
+  .chat-scr.go-r { transform: translateX(100%); opacity: 0; pointer-events: none; }
+  .chat-top {
+    padding: 0 16px 14px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .back-btn {
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border-radius: 10px; transition: background .2s;
+  }
+  .back-btn:hover { background: var(--surface); }
+  .chat-nm { font-size: 17px; font-weight: 700; }
+  .chat-st { font-size: 11px; color: var(--green); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+
+  .msgs {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+    scroll-behavior: smooth; scrollbar-width: none;
+  }
+  .msgs::-webkit-scrollbar { display: none; }
+
+  .bub {
+    max-width: 82%; padding: 14px 18px;
+    border-radius: 20px; font-size: 14px; line-height: 1.55;
+    animation: pop .3s ease;
+  }
+  @keyframes pop { from{opacity:0;transform:translateY(6px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+  .bub.bot { background: #111128; border: 1px solid rgba(74,74,244,0.12); align-self: flex-start; border-bottom-left-radius: 6px; }
+  .bub.me { background: var(--indigo); align-self: flex-end; border-bottom-right-radius: 6px; }
+
+  .pw { align-self: flex-start; max-width: 88%; animation: pop .3s ease; }
+  .pg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pc {
+    background: var(--card-bg); border-radius: 14px; overflow: hidden;
+    cursor: pointer; border: 1px solid var(--border);
+    transition: border-color .2s, transform .15s;
+  }
+  .pc:hover { border-color: var(--indigo); transform: scale(1.02); }
+  .pc-im { height: 88px; background: var(--surface); display: flex; align-items: center; justify-content: center; }
+  .pc-im img { width: 100%; height: 100%; object-fit: cover; }
+  .pc-bd { padding: 10px 12px; }
+  .pc-nm { font-size: 11px; font-weight: 600; line-height: 1.3; margin-bottom: 3px; }
+  .pc-mt { font-size: 10px; color: var(--text-sec); margin-bottom: 4px; }
+  .pc-ap { font-size: 10px; color: var(--green); font-weight: 600; }
+
+  .pls { align-self: flex-start; display: flex; gap: 8px; flex-wrap: wrap; animation: pop .3s ease; }
+  .pl {
+    padding: 10px 16px; background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 100px; font-size: 13px; font-weight: 500; color: var(--text);
+    cursor: pointer; transition: all .2s;
+  }
+  .pl:hover { border-color: var(--indigo); color: var(--indigo-lt); background: rgba(74,74,244,0.08); }
+
+  .dots-w {
+    align-self: flex-start; display: flex; gap: 5px;
+    padding: 14px 18px; background: #111128; border: 1px solid rgba(74,74,244,0.12);
+    border-radius: 20px; border-bottom-left-radius: 6px; animation: pop .3s ease;
+  }
+  .dt { width: 7px; height: 7px; background: var(--text-sec); border-radius: 50%; animation: bnc 1.2s infinite; }
+  .dt:nth-child(2){animation-delay:.15s} .dt:nth-child(3){animation-delay:.3s}
+  @keyframes bnc { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-7px)} }
+
+  .ibar {
+    padding: 12px 16px 36px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: center; background: var(--bg);
+  }
+  .ifield {
+    flex: 1; padding: 13px 18px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 100px; color: var(--text); font-size: 14px; font-family: inherit; outline: none;
+    transition: border-color .2s;
+  }
+  .ifield:focus { border-color: var(--indigo); }
+  .ifield::placeholder { color: var(--text-dim); }
+  .sbtn {
+    width: 42px; height: 42px; background: var(--indigo); border: none; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; color: white;
+    flex-shrink: 0; transition: background .2s;
+  }
+  .sbtn:hover { background: var(--indigo-lt); }
+  .sbtn svg { display: block; }
+
+  /* Checkout */
+  .ov { position:fixed;inset:0;background:rgba(0,0,0,.65);opacity:0;pointer-events:none;transition:opacity .3s;z-index:20; }
+  .ov.on { opacity:1;pointer-events:all; }
+  .sh {
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);
+    width:100%;max-width:430px;background:#0e0e24;border-radius:24px 24px 0 0;
+    padding:20px 20px 44px;transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:21;
+    border-top:1px solid rgba(255,255,255,0.1);
+  }
+  .sh.on { transform:translateX(-50%) translateY(0); }
+  .sh.on { transform:translateY(0); }
+  .sh-handle { width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin:0 auto 20px; }
+  .sh-prod { display:flex;align-items:center;gap:14px;margin-bottom:20px; }
+  .sh-logo { width:48px;height:48px;background:var(--card-bg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;border:1px solid var(--border);flex-shrink:0;overflow:hidden; }
+  .sh-logo img { width:100%;height:100%;object-fit:cover; }
+  .sh-nm { font-size:16px;font-weight:700; }
+  .sh-pr { font-size:14px;color:var(--text-sec); }
+  .plan-bx { background:var(--card-bg);border:2px solid var(--indigo);border-radius:14px;padding:18px;margin-bottom:16px; }
+  .plan-r { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:15px; }
+  .plan-r:last-child { margin-bottom:0; }
+  .plan-v { font-weight:700; }
+  .plan-v.g { color:var(--green); }
+  .det-r { display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border);font-size:14px; }
+  .det-r:last-of-type { border-bottom:none; }
+  .det-l { color:var(--text-sec); }
+  .cfm-btn {
+    margin-top:20px;width:100%;padding:18px;background:var(--indigo);border:none;border-radius:100px;
+    color:white;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s;
+  }
+  .cfm-btn:hover { background:var(--indigo-lt); }
+
+  .suc-card {
+    align-self:flex-start;max-width:85%;background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.2);
+    border-radius:16px;padding:16px 20px;animation:pop .3s ease;
+  }
+  .suc-tt { font-size:14px;font-weight:700;color:var(--green);margin-bottom:6px; }
+  .suc-bd { font-size:13px;line-height:1.5; }
+</style>
+</head>
+<body>
+<div class="phone">
+
+<!-- ═══ HOME ═══ -->
+<div class="scr home" id="H">
+  <div class="sbar">
+    <span class="sbar-time">9:41</span>
+    <div class="sbar-right">
+      <svg width="17" height="12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="#fff"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#fff"/><rect x="9" y="0" width="3" height="12" rx="1" fill="#fff"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#fff"/></svg>
+      <svg width="16" height="12" fill="none"><path d="M1 4.5C3.5 1.5 6.5.5 8 .5s4.5 1 7 4" stroke="#fff" stroke-width="1.3" fill="none"/><path d="M3 7c1.5-2 3.5-2.8 5-2.8s3.5.8 5 2.8" stroke="#fff" stroke-width="1.3" fill="none"/><circle cx="8" cy="10" r="1.5" fill="#fff"/></svg>
+      <svg width="27" height="13" fill="none"><rect x=".5" y=".5" width="22" height="12" rx="3" stroke="rgba(255,255,255,0.4)"/><rect x="2" y="2.5" width="18" height="8" rx="1.5" fill="#fff"/><path d="M24 4.5v4a2 2 0 000-4z" fill="rgba(255,255,255,0.4)"/></svg>
+    </div>
+  </div>
+
+  <div class="home-glow"></div>
+
+  <div class="home-body">
+    <!-- Header -->
+    <div class="hdr">
+      <div class="logo-affirm">
+        <svg width="80" height="28" viewBox="0 0 80 28" fill="none">
+          <text x="0" y="22" font-family="Inter" font-weight="800" font-size="24" fill="white" letter-spacing="-1">affirm</text>
+        </svg>
+      </div>
+      <div class="hdr-icons">
+        <div class="hdr-ic">
+          <svg width="24" height="24" fill="none" stroke="#9090ae" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+        </div>
+        <div class="hdr-ic">
+          <svg width="24" height="24" fill="none" stroke="#9090ae" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Purchasing Power -->
+    <div class="pp">
+      <div class="pp-label">
+        <div class="pp-bolt"><svg width="14" height="16" fill="none"><path d="M8 1L2 9h5l-1 6 6-8H7l1-6z" fill="#4a4af4"/></svg></div>
+        Amanda, your purchasing power is
+      </div>
+      <div class="pp-val">
+        $2,000
+        <span class="pp-info">i</span>
+      </div>
+    </div>
+
+    <!-- Orlando CTA -->
+    <div class="orlando-cta" onclick="launch('I need a new stroller for my trip to Adventure Kingdom. What\'s the best stroller for park visits under $600 with 0% APR?')">
+      <div class="sparkle"><svg width="18" height="18" fill="none"><path d="M9 1l1.5 4.5L15 7l-4.5 1.5L9 13l-1.5-4.5L3 7l4.5-1.5z" fill="#9090ae"/><path d="M14 0l.6 1.8L16.4 2.4l-1.8.6L14 4.8l-.6-1.8L11.6 2.4l1.8-.6z" fill="#9090ae" opacity=".6"/></svg></div>
+      Get ready for your Orlando trip
+    </div>
+
+    <!-- Chips -->
+    <div class="chips">
+      <span class="ch" onclick="launch('Find park gear under $50/mo')">Park gear under $50/mo</span>
+      <span class="ch" onclick="launch('Interest-free fashion deals')">Interest-free fashion</span>
+      <span class="ch" onclick="launch('Show me deals on luggage')">Luggage deals</span>
+    </div>
+
+    <!-- Adventure Kingdom -->
+    <div class="section-card">
+      <div class="sec-hd">
+        <div class="sec-tt">
+          Adventure Kingdom needs
+          <svg width="18" height="18" fill="none"><circle cx="9" cy="9" r="8" stroke="#5c5c78" stroke-width="1.5"/><path d="M9 5v4l3 2" stroke="#5c5c78" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sec-sa">See all <svg width="7" height="12" fill="none"><path d="M1 1l5 5-5 5" stroke="#9090ae" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="prod-row">
+        <div class="prod" onclick="launch('Show me Ray-Ban sunglasses')">
+          <div class="prod-img">
+            <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=300&fit=crop" alt="Sunglasses">
+            <div class="prod-fav"><svg width="16" height="16" fill="none"><path d="M8 14s-6-4.35-6-7.69A3.31 3.31 0 018 3.56a3.31 3.31 0 016 2.75C14 9.65 8 14 8 14z" stroke="#fff" stroke-width="1.3"/></svg></div>
+          </div>
+          <div class="prod-name">Ray-Ban RB3025 Classic Aviator Sungl...</div>
+          <div class="prod-sub">As low as $34.50/mo</div>
+          <div class="prod-apr">0% APR options</div>
+        </div>
+        <div class="prod" onclick="launch('Show me the Yeti cooler')">
+          <div class="prod-img">
+            <img src="https://images.unsplash.com/photo-1576074544778-6f68e5e6a862?w=400&h=300&fit=crop" alt="Cooler">
+            <div class="prod-fav"><svg width="16" height="16" fill="none"><path d="M8 14s-6-4.35-6-7.69A3.31 3.31 0 018 3.56a3.31 3.31 0 016 2.75C14 9.65 8 14 8 14z" stroke="#fff" stroke-width="1.3"/></svg></div>
+          </div>
+          <div class="prod-name">Yeti Tundra 45 Hard Cooler</div>
+          <div class="prod-sub">As low as $54.50/mo</div>
+          <div class="prod-apr">0% APR options</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New offers -->
+    <div style="padding: 0 20px;">
+      <div class="sec-hd" style="padding:0;">
+        <div class="sec-tt">New offers from your favorites</div>
+        <div class="sec-sa">See all <svg width="7" height="12" fill="none"><path d="M1 1l5 5-5 5" stroke="#9090ae" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </div>
+    <div class="prod-row" style="padding: 0 20px 20px;">
+      <div class="prod">
+        <div class="prod-img">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop" alt="Shoes">
+          <div class="prod-fav"><svg width="16" height="16" fill="none"><path d="M8 14s-6-4.35-6-7.69A3.31 3.31 0 018 3.56a3.31 3.31 0 016 2.75C14 9.65 8 14 8 14z" stroke="#fff" stroke-width="1.3"/></svg></div>
+        </div>
+        <div class="prod-name">Nike Air Max 90</div>
+        <div class="prod-sub">As low as $19/mo</div>
+        <div class="prod-apr">0% APR options</div>
+      </div>
+      <div class="prod">
+        <div class="prod-img">
+          <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=300&fit=crop" alt="iPad">
+          <div class="prod-fav"><svg width="16" height="16" fill="none"><path d="M8 14s-6-4.35-6-7.69A3.31 3.31 0 018 3.56a3.31 3.31 0 016 2.75C14 9.65 8 14 8 14z" stroke="#fff" stroke-width="1.3"/></svg></div>
+        </div>
+        <div class="prod-name">iPad Air M3</div>
+        <div class="prod-sub">As low as $52/mo</div>
+        <div class="prod-apr">0% APR options</div>
+      </div>
+      <div class="prod">
+        <div class="prod-img">
+          <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=300&fit=crop" alt="Headphones">
+          <div class="prod-fav"><svg width="16" height="16" fill="none"><path d="M8 14s-6-4.35-6-7.69A3.31 3.31 0 018 3.56a3.31 3.31 0 016 2.75C14 9.65 8 14 8 14z" stroke="#fff" stroke-width="1.3"/></svg></div>
+        </div>
+        <div class="prod-name">Sony WH-1000XM5</div>
+        <div class="prod-sub">As low as $33/mo</div>
+        <div class="prod-apr">0% APR options</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tbar">
+    <div class="tb on">
+      <div class="tb-ic"><svg width="24" height="24" fill="white"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg></div>
+      <span class="tb-lb" style="color:white">Home</span>
+    </div>
+    <div class="tb">
+      <div class="tb-ic"><svg width="24" height="24" fill="none" stroke="#5c5c78" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke-linejoin="round"/><circle cx="7" cy="7" r="1" fill="#5c5c78"/></svg></div>
+      <span class="tb-lb">Deals</span>
+    </div>
+    <div class="tb">
+      <div class="tb-ic"><svg width="24" height="24" fill="none" stroke="#5c5c78" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+      <span class="tb-lb">Card</span>
+    </div>
+    <div class="tb">
+      <div class="tb-ic"><svg width="24" height="24" fill="none" stroke="#5c5c78" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round"/><path d="M9.5 12h5" stroke-linecap="round"/><text x="10" y="16" font-size="9" fill="#5c5c78" font-family="Inter" font-weight="700">$</text></svg></div>
+      <span class="tb-lb">Plans</span>
+    </div>
+    <div class="tb">
+      <div class="tb-ic"><svg width="24" height="24" fill="none" stroke="#5c5c78" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <span class="tb-lb">Money</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CHAT ═══ -->
+<div class="scr chat-scr go-r" id="C">
+  <div class="sbar">
+    <span class="sbar-time">9:41</span>
+    <div class="sbar-right">
+      <svg width="17" height="12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="#fff"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#fff"/><rect x="9" y="0" width="3" height="12" rx="1" fill="#fff"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#fff"/></svg>
+      <svg width="16" height="12" fill="none"><path d="M1 4.5C3.5 1.5 6.5.5 8 .5s4.5 1 7 4" stroke="#fff" stroke-width="1.3" fill="none"/><path d="M3 7c1.5-2 3.5-2.8 5-2.8s3.5.8 5 2.8" stroke="#fff" stroke-width="1.3" fill="none"/><circle cx="8" cy="10" r="1.5" fill="#fff"/></svg>
+      <svg width="27" height="13" fill="none"><rect x=".5" y=".5" width="22" height="12" rx="3" stroke="rgba(255,255,255,0.4)"/><rect x="2" y="2.5" width="18" height="8" rx="1.5" fill="#fff"/><path d="M24 4.5v4a2 2 0 000-4z" fill="rgba(255,255,255,0.4)"/></svg>
+    </div>
+  </div>
+  <div class="chat-top">
+    <div class="back-btn" onclick="back()"><svg width="10" height="18" fill="none"><path d="M9 1L1 9l8 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div>
+      <div class="chat-nm">Affirm Intelligence</div>
+      <div class="chat-st"><svg width="6" height="6"><circle cx="3" cy="3" r="3" fill="#00d68f"/></svg> Online</div>
+    </div>
+  </div>
+  <div class="msgs" id="M"></div>
+  <div class="ibar">
+    <input class="ifield" id="I" placeholder="Type your message here" onkeydown="if(event.key==='Enter')send()">
+    <button class="sbtn" onclick="send()"><svg width="18" height="18" fill="none"><path d="M2 9h14M10 3l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</div>
+
+<!-- Checkout -->
+<div class="ov" id="ov" onclick="cs()"></div>
+<div class="sh" id="sh">
+  <div class="sh-handle"></div>
+  <div class="sh-prod">
+    <div class="sh-logo" id="sL"></div>
+    <div><div class="sh-nm" id="sN"></div><div class="sh-pr" id="sP"></div></div>
+  </div>
+  <div class="plan-bx">
+    <div class="plan-r"><span id="sPl"></span><span style="color:var(--text-sec)">&#9662;</span></div>
+    <div class="plan-r"><span>$0 due today</span><span class="plan-v g">0% APR</span></div>
+  </div>
+  <div class="det-r"><span class="det-l">Payment method</span><span>Debit &#8226;&#8226;&#8226;&#8226; 1234</span></div>
+  <div class="det-r"><span class="det-l">Interest (0.00% APR)</span><span>$0.00</span></div>
+  <div class="det-r"><span class="det-l">Total of payments</span><span id="sT"></span></div>
+  <button class="cfm-btn" onclick="buy()">Slide to confirm &rarr;</button>
+</div>
+
+</div>
+
+<script>
+const MS=document.getElementById('M'),IN=document.getElementById('I');
+
+const cat={
+  strollers:[
+    {n:"Zoe Traveler: Compact",m:"Zoe Baby",p:349,mo:23,apr:"0% APR",img:"https://images.unsplash.com/photo-1586105251261-72a756497a11?w=300&h=200&fit=crop"},
+    {n:"Mompush Lithe V2",m:"Mompush",p:359,mo:24,apr:"0% APR",img:"https://images.unsplash.com/photo-1590590382183-3daa4a893d90?w=300&h=200&fit=crop"},
+    {n:"Zoe Twin V2: Lightweight",m:"Zoe Baby",p:529,mo:48,apr:"0% APR",img:"https://images.unsplash.com/photo-1590590382183-3daa4a893d90?w=300&h=200&fit=crop"},
+    {n:"Nuna TRVL dubi Stroller",m:"Pottery Barn Kids",p:590,mo:50,apr:"0% APR",img:"https://images.unsplash.com/photo-1586105251261-72a756497a11?w=300&h=200&fit=crop"}
+  ],
+  doubles:[
+    {n:"Zoe Twin V2: Lightweight",m:"Zoe Baby",p:529,mo:48,apr:"0% APR",img:"https://images.unsplash.com/photo-1590590382183-3daa4a893d90?w=300&h=200&fit=crop"},
+    {n:"UPPAbaby VISTA V3",m:"Nordstrom",p:849,mo:71,apr:"0% APR",img:"https://images.unsplash.com/photo-1586105251261-72a756497a11?w=300&h=200&fit=crop"},
+    {n:"Baby Jogger City Mini",m:"Target",p:399,mo:33,apr:"0% APR",img:"https://images.unsplash.com/photo-1590590382183-3daa4a893d90?w=300&h=200&fit=crop"},
+    {n:"Nuna DEMI Next Double",m:"Pottery Barn Kids",p:699,mo:58,apr:"0% APR",img:"https://images.unsplash.com/photo-1586105251261-72a756497a11?w=300&h=200&fit=crop"}
+  ],
+  sunglasses:[
+    {n:"Ray-Ban Aviator Classic",m:"Ray-Ban",p:207,mo:34,apr:"0% APR",img:"https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&h=200&fit=crop"},
+    {n:"Oakley Holbrook",m:"Oakley",p:186,mo:31,apr:"0% APR",img:"https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&h=200&fit=crop"},
+    {n:"Goodr OG Sunglasses",m:"Goodr",p:25,mo:0,apr:"Pay now",img:"https://images.unsplash.com/photo-1577803645773-f96470509666?w=300&h=200&fit=crop"},
+    {n:"Costa Del Mar Fantail",m:"Costa",p:279,mo:46,apr:"0% APR",img:"https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&h=200&fit=crop"}
+  ],
+  coolers:[
+    {n:"Yeti Tundra 45",m:"Yeti",p:325,mo:54,apr:"0% APR",img:"https://images.unsplash.com/photo-1576074544778-6f68e5e6a862?w=300&h=200&fit=crop"},
+    {n:"RTIC 52 QT Ultra-Light",m:"RTIC",p:200,mo:33,apr:"0% APR",img:"https://images.unsplash.com/photo-1576074544778-6f68e5e6a862?w=300&h=200&fit=crop"},
+    {n:"Coleman 316 Series",m:"Target",p:55,mo:0,apr:"Pay now",img:"https://images.unsplash.com/photo-1576074544778-6f68e5e6a862?w=300&h=200&fit=crop"},
+    {n:"Igloo BMX 52 Quart",m:"Amazon",p:80,mo:13,apr:"0% APR",img:"https://images.unsplash.com/photo-1576074544778-6f68e5e6a862?w=300&h=200&fit=crop"}
+  ]
+};
+
+const fl={
+  strollers:{hi:"Hi Amanda\u2014I found some great budget-friendly options with 0% APR plans for your next purchase.",it:cat.strollers,then:"If you\u2019re looking for a specific type of stroller\u2014like a double\u2014I can find that too.",pl:["Double","Lightweight","Premium","Under $400"]},
+  doubles:{hi:"Here are the top-rated double strollers among park visitors\u2014all under $900 with 0% APR.",it:cat.doubles,then:"The Zoe Twin is the lightest at 19 lbs. The UPPAbaby is premium but the best ride quality.",pl:["Compare top 2","Which fits a car trunk?","Best for newborn + toddler"]},
+  sunglasses:{hi:"Here are sunglasses options\u2014a mix of styles and prices, all within your purchasing power.",it:cat.sunglasses,then:"The Goodr is $25\u2014perfect for a park day. The Ray-Bans are a classic investment.",pl:["Polarized only","Under $50","Sport style"]},
+  coolers:{hi:"Great choice for the park! Here are coolers that fit your budget.",it:cat.coolers,then:"The Coleman is $55\u2014pay now, no plan needed. The Yeti keeps ice 5+ days.",pl:["Biggest capacity","Under $100","With wheels"]},
+  afford:{hi:"Let me check your finances, Amanda.\n\n<strong>Purchasing power:</strong> $2,000\n<strong>Active loans:</strong> 2 ($89/mo total)\n<strong>Next payment:</strong> in 6 days\n\nA $600 stroller at 0% APR would add ~$50/mo for 12 months. That keeps you well within your monthly budget. <strong>You can afford it comfortably.</strong>",pl:["Show me options under $600","What about $800?","My payment schedule"]},
+  welcome:{hi:"Hi Amanda! I\u2019m your Affirm Intelligence assistant. I can help you find the best deals across 220K+ merchants, check what you can afford, or plan your next purchase. What\u2019s on your mind?",pl:["Get ready for Orlando trip","What can I afford?","Show me 0% deals","My financial summary"]}
+};
+
+function intent(t){const l=t.toLowerCase();if(l.includes('double')||l.includes('twin'))return'doubles';if(l.includes('stroller')||l.includes('orlando')||l.includes('adventure')||l.includes('trip')||l.includes('park gear'))return'strollers';if(l.includes('sunglass')||l.includes('ray-ban')||l.includes('shades'))return'sunglasses';if(l.includes('cooler')||l.includes('yeti'))return'coolers';if(l.includes('afford')||l.includes('can i')||l.includes('budget')||l.includes('financial')||l.includes('summary'))return'afford';return'welcome';}
+
+function ab(h,c){const d=document.createElement('div');d.className='bub '+c;d.innerHTML=h;MS.appendChild(d);MS.scrollTop=MS.scrollHeight;}
+function ap(items){const w=document.createElement('div');w.className='pw';w.innerHTML='<div class="pg">'+items.map(i=>'<div class="pc" onclick=\'os('+JSON.stringify(i).replace(/'/g,"&#39;")+')\''+'><div class="pc-im"><img src="'+i.img+'" alt=""></div><div class="pc-bd"><div class="pc-nm">'+i.n+'</div><div class="pc-mt">$'+i.p+' &middot; '+i.m+'</div><div class="pc-ap">'+(i.mo>0?'$'+i.mo+'/mo &middot; ':'')+i.apr+'</div></div></div>').join('')+'</div>';MS.appendChild(w);MS.scrollTop=MS.scrollHeight;}
+function apl(arr){const w=document.createElement('div');w.className='pls';w.innerHTML=arr.map(t=>'<span class="pl" onclick="tap(\''+t.replace(/'/g,"\\'")+'\')">'+t+'</span>').join('');MS.appendChild(w);MS.scrollTop=MS.scrollHeight;}
+function sd(){const d=document.createElement('div');d.className='dots-w';d.id='typ';d.innerHTML='<div class="dt"></div><div class="dt"></div><div class="dt"></div>';MS.appendChild(d);MS.scrollTop=MS.scrollHeight;}
+function hd(){const d=document.getElementById('typ');if(d)d.remove();}
+
+async function resp(t){const k=intent(t),f=fl[k]||fl.welcome;sd();await w(900);hd();ab(f.hi,'bot');if(f.it){await w(500);ap(f.it);if(f.then){await w(400);ab(f.then,'bot');}}if(f.pl){await w(300);apl(f.pl);}}
+function send(){const t=IN.value.trim();if(!t)return;ab(t,'me');IN.value='';resp(t);}
+function tap(t){document.querySelectorAll('.pls').forEach((e,i,a)=>{if(i===a.length-1)e.remove();});ab(t,'me');resp(t);}
+
+function go(){document.getElementById('C').classList.remove('go-r');document.body.style.overflow='hidden';IN.focus();if(!MS.children.length){setTimeout(()=>{ab(fl.welcome.hi,'bot');setTimeout(()=>apl(fl.welcome.pl),300);},400);}}
+function launch(t){document.getElementById('C').classList.remove('go-r');document.body.style.overflow='hidden';if(!MS.children.length)setTimeout(()=>{ab(t,'me');resp(t);},300);else{ab(t,'me');resp(t);}}
+function back(){document.getElementById('C').classList.add('go-r');document.body.style.overflow='';}
+
+function os(item){document.getElementById('sL').innerHTML=item.img?'<img src="'+item.img+'" alt="">':'';document.getElementById('sN').textContent=item.n;document.getElementById('sP').textContent='$'+item.p;document.getElementById('sT').textContent='$'+item.p+'.00';document.getElementById('sPl').innerHTML=item.mo>0?'<strong>$'+item.mo+'.00 every month for '+Math.ceil(item.p/item.mo)+' months</strong>':'<strong>Pay now &mdash; $'+item.p+'</strong>';document.getElementById('ov').classList.add('on');document.getElementById('sh').classList.add('on');}
+function cs(){document.getElementById('ov').classList.remove('on');document.getElementById('sh').classList.remove('on');}
+function buy(){cs();setTimeout(()=>{const s=document.createElement('div');s.className='suc-card';s.innerHTML='<div class="suc-tt">&#10003; Purchase confirmed</div><div class="suc-bd">Your order is on its way. Your purchasing power is now <strong>$1,471</strong>. Want to keep shopping for your trip?</div>';MS.appendChild(s);MS.scrollTop=MS.scrollHeight;setTimeout(()=>apl(["Keep shopping","Show updated budget","That's all for now"]),400);},500);}
+function w(ms){return new Promise(r=>setTimeout(r,ms));}
+</script>
+</body>
+</html>
