@@ -356,7 +356,7 @@
 
   /* Password gate */
   .gate {
-    position: fixed; inset: 0; z-index: 100;
+    position: fixed; inset: 0; z-index: 9999;
     background: var(--bg);
     display: flex; align-items: center; justify-content: center;
     animation: gateFade .4s ease;
@@ -655,14 +655,14 @@ function cs(){document.getElementById('ov').classList.remove('on');document.getE
 function buy(){cs();setTimeout(()=>{const s=document.createElement('div');s.className='suc-card';s.innerHTML='<div class="suc-tt">&#10003; Purchase confirmed</div><div class="suc-bd">Your order is on its way. Your purchasing power is now <strong>$1,471</strong>. Want to keep shopping for your trip?</div>';MS.appendChild(s);MS.scrollTop=MS.scrollHeight;setTimeout(()=>apl(["Keep shopping","Show updated budget","That's all for now"]),400);},500);}
 function w(ms){return new Promise(r=>setTimeout(r,ms));}
 
-const PASS_HASH='a0f3285b07c26c0dcd2191447f391170d06035e8d57e31a048ba87e46ace5678';
+const PASS_HASH='f613d7f4426e7eeb12ca33afaf9663940a8a028e99dc0b706d614230cb51f63a';
 async function sha256(s){const d=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');}
 async function unlock(){
   const v=document.getElementById('gateInput').value;
   if(!v){document.getElementById('gateErr').textContent='Please enter a password';return;}
   const h=await sha256(v);
-  if(h===PASS_HASH||v==='affirm2026'){
-    sessionStorage.setItem('auth','1');
+  if(h===PASS_HASH){
+    sessionStorage.setItem('affirm_auth','1');
     document.getElementById('gate').classList.add('out');
     document.getElementById('app').style.display='';
     setTimeout(()=>document.getElementById('gate').remove(),400);
@@ -672,7 +672,7 @@ async function unlock(){
     document.getElementById('gateInput').focus();
   }
 }
-if(sessionStorage.getItem('auth')==='1'){
+if(sessionStorage.getItem('affirm_auth')==='1'){
   document.getElementById('gate').remove();
   document.getElementById('app').style.display='';
 }else{
