@@ -141,6 +141,33 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
 .suc{align-self:flex-start;max-width:88%;background:rgba(0,214,143,.08);border:1px solid rgba(0,214,143,.2);border-radius:14px;padding:14px 18px;animation:pop .3s ease}
 .suc-t{font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px}
 .suc-b{font-size:12px;line-height:1.5}
+
+/* Scene 3: Affirm App */
+.af-header{padding:8px 20px 0;display:flex;justify-content:space-between;align-items:center}
+.af-logo{font-size:24px;font-weight:800;color:white}
+.af-pp{text-align:center;padding:24px 20px 20px}
+.af-pp-label{font-size:14px;color:var(--tsec);margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:6px}
+.af-pp-val{font-size:48px;font-weight:800;letter-spacing:-2px}
+.af-trip-banner{margin:0 20px 16px;padding:16px 20px;background:rgba(74,74,244,.08);border:1px solid rgba(74,74,244,.2);border-radius:16px}
+.af-trip-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.af-trip-sub{font-size:12px;color:var(--tsec)}
+.af-trip-items{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.af-trip-item{padding:6px 12px;background:var(--card);border:1px solid var(--border);border-radius:100px;font-size:11px;font-weight:500;display:flex;align-items:center;gap:4px}
+.af-trip-item.done{color:var(--green);border-color:rgba(0,214,143,.2)}
+.ch{padding:10px 18px;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:100px;font-size:14px;font-weight:500;color:var(--text);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.ch:hover{border-color:var(--indigo);background:rgba(74,74,244,.08)}
+.tb{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;width:56px}
+.tb-ic{height:24px;display:flex;align-items:center;justify-content:center}
+.tb-lb{font-size:10px;font-weight:600;color:var(--tdim)}
+.tb.on .tb-lb{color:var(--text)}
+.af-chat-scr{position:fixed;top:0;left:50%;width:100%;max-width:430px;height:100vh;background:var(--bg);z-index:15;display:flex;flex-direction:column}
+.af-chat-scr.go-r{transform:translateX(100%);opacity:0;pointer-events:none}
+.af-chat-scr:not(.go-r){transform:translateX(-50%)}
+.af-chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth;scrollbar-width:none}
+.af-chat-msgs::-webkit-scrollbar{display:none}
+.bub{max-width:82%;padding:14px 18px;border-radius:20px;font-size:14px;line-height:1.55;animation:pop .3s ease}
+.bub.bot{background:#111128;border:1px solid rgba(74,74,244,.12);align-self:flex-start;border-bottom-left-radius:6px}
+.bub.me{background:var(--indigo);align-self:flex-end;border-bottom-right-radius:6px}
 </style>
 </head>
 <body>
@@ -269,7 +296,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
   </div>
 
   <!-- App chat (slides over) -->
-  <div id="af-chat-screen" style="position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:100vh;background:var(--bg);z-index:15;display:flex;flex-direction:column;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s" class="go-r">
+  <div id="af-chat-screen" class="af-chat-scr go-r" style="transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s">
     <div style="height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-size:16px;font-weight:600">
       <span>9:41</span><span style="font-size:12px">5G</span>
     </div>
@@ -282,10 +309,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
         <div style="font-size:11px;color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px"><svg width="6" height="6"><circle cx="3" cy="3" r="3" fill="#00d68f"/></svg> Online</div>
       </div>
     </div>
-    <div class="af-chat-msgs" id="af-chat" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth"></div>
+    <div class="af-chat-msgs" id="af-chat"></div>
     <div style="padding:12px 16px 36px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;background:var(--bg)">
-      <input class="af-input" id="af-input" placeholder="Type your message here" onkeydown="if(event.key==='Enter')afSend()" style="flex:1;padding:13px 18px;background:var(--surface);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:14px;font-family:inherit;outline:none">
-      <button class="af-send" onclick="afSend()" style="width:42px;height:42px;background:var(--indigo);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;flex-shrink:0">
+      <input id="af-input" placeholder="Type your message here" onkeydown="if(event.key==='Enter')afSend()" style="flex:1;padding:13px 18px;background:var(--surface);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:14px;font-family:inherit;outline:none">
+      <button onclick="afSend()" style="width:42px;height:42px;background:var(--indigo);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;flex-shrink:0">
         <svg width="18" height="18" fill="none"><path d="M2 9h14M10 3l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
@@ -479,15 +506,19 @@ function initScene3(){
 }
 
 function afOpenChat(t){
-  const cs=document.getElementById('af-chat-screen');
-  cs.classList.remove('go-r');
+  const el=document.getElementById('af-chat-screen');
+  el.classList.remove('go-r');
+  document.body.style.overflow='hidden';
   if(!document.getElementById('af-chat').children.length){
     setTimeout(()=>{addTo('af-chat',t,'bub me');afRespond(t);},300);
   } else {
     addTo('af-chat',t,'bub me');afRespond(t);
   }
 }
-function afCloseChat(){document.getElementById('af-chat-screen').classList.add('go-r');}
+function afCloseChat(){
+  document.getElementById('af-chat-screen').classList.add('go-r');
+  document.body.style.overflow='';
+}
 
 async function afRespond(t){
   const c='af-chat',lo=t.toLowerCase();
