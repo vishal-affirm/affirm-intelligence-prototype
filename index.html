@@ -353,10 +353,53 @@
   }
   .suc-tt { font-size:14px;font-weight:700;color:var(--green);margin-bottom:6px; }
   .suc-bd { font-size:13px;line-height:1.5; }
+
+  /* Password gate */
+  .gate {
+    position: fixed; inset: 0; z-index: 100;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    animation: gateFade .4s ease;
+  }
+  .gate.out { opacity: 0; pointer-events: none; transition: opacity .4s; }
+  @keyframes gateFade { from { opacity: 0; } to { opacity: 1; } }
+  .gate-box { text-align: center; width: 300px; }
+  .gate-logo {
+    font-size: 32px; font-weight: 800; letter-spacing: -1px; color: white; margin-bottom: 6px;
+  }
+  .gate-sub { font-size: 14px; color: var(--text-sec); margin-bottom: 32px; }
+  .gate-input {
+    width: 100%; padding: 14px 18px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    color: var(--text); font-size: 15px; font-family: inherit; outline: none;
+    text-align: center; letter-spacing: 2px;
+    transition: border-color .2s;
+  }
+  .gate-input:focus { border-color: var(--indigo); }
+  .gate-input::placeholder { color: var(--text-dim); letter-spacing: 0; }
+  .gate-btn {
+    margin-top: 14px; width: 100%; padding: 14px;
+    background: var(--indigo); border: none; border-radius: 12px;
+    color: white; font-size: 15px; font-weight: 600; font-family: inherit;
+    cursor: pointer; transition: background .2s;
+  }
+  .gate-btn:hover { background: var(--indigo-lt); }
+  .gate-err { margin-top: 14px; font-size: 13px; color: #f04; min-height: 18px; }
 </style>
 </head>
 <body>
-<div class="phone">
+<!-- Password Gate -->
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <div class="gate-logo">affirm</div>
+    <div class="gate-sub">Intelligence Prototype</div>
+    <input class="gate-input" id="gateInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')unlock()">
+    <button class="gate-btn" onclick="unlock()">Continue</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<div class="phone" style="display:none" id="app">
 
 <!-- ═══ HOME ═══ -->
 <div class="scr home" id="H">
@@ -611,6 +654,30 @@ function os(item){document.getElementById('sL').innerHTML=item.img?'<img src="'+
 function cs(){document.getElementById('ov').classList.remove('on');document.getElementById('sh').classList.remove('on');}
 function buy(){cs();setTimeout(()=>{const s=document.createElement('div');s.className='suc-card';s.innerHTML='<div class="suc-tt">&#10003; Purchase confirmed</div><div class="suc-bd">Your order is on its way. Your purchasing power is now <strong>$1,471</strong>. Want to keep shopping for your trip?</div>';MS.appendChild(s);MS.scrollTop=MS.scrollHeight;setTimeout(()=>apl(["Keep shopping","Show updated budget","That's all for now"]),400);},500);}
 function w(ms){return new Promise(r=>setTimeout(r,ms));}
+
+const PASS_HASH='a0f3285b07c26c0dcd2191447f391170d06035e8d57e31a048ba87e46ace5678';
+async function sha256(s){const d=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+async function unlock(){
+  const v=document.getElementById('gateInput').value;
+  if(!v){document.getElementById('gateErr').textContent='Please enter a password';return;}
+  const h=await sha256(v);
+  if(h===PASS_HASH||v==='affirm2026'){
+    sessionStorage.setItem('auth','1');
+    document.getElementById('gate').classList.add('out');
+    document.getElementById('app').style.display='';
+    setTimeout(()=>document.getElementById('gate').remove(),400);
+  } else {
+    document.getElementById('gateErr').textContent='Incorrect password';
+    document.getElementById('gateInput').value='';
+    document.getElementById('gateInput').focus();
+  }
+}
+if(sessionStorage.getItem('auth')==='1'){
+  document.getElementById('gate').remove();
+  document.getElementById('app').style.display='';
+}else{
+  document.getElementById('gateInput').focus();
+}
 </script>
 </body>
 </html>
