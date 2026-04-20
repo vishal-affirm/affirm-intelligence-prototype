@@ -240,7 +240,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
     <div class="congrats-row"><span>Flights</span><span>2 round-trip, JFK &rarr; MCO</span></div>
     <div class="congrats-row"><span>Hotel</span><span>Hilton Orlando, 5 nights</span></div>
     <div class="congrats-row"><span>Dates</span><span>Jul 12 &ndash; Jul 17, 2026</span></div>
-    <div class="congrats-row" style="border:none"><span>Family of 4</span><span>2 adults + 3 kids</span></div>
+    <div class="congrats-row" style="border:none"><span>Family of 5</span><span>2 adults + 3 kids</span></div>
   </div>
   <div class="congrats-affirm">
     <span class="congrats-affirm-logo">affirm</span>
@@ -554,31 +554,31 @@ async function plTap2(t){
 // ─── SCENE 2: GEMINI ───
 async function initScene2(){
   const c='gm-chat';
-  addTo(c,"Find me the best day passes for Adventure Kingdom in Orlando for a family of 4. We're going July 12\u201317. I'd like financing options.",'gm-msg user');
+  addTo(c,"Find me the best day passes for Adventure Kingdom in Orlando for a family of 5. We're going July 12\u201317. I'd like financing options.",'gm-msg user');
   dotsIn(c,'gm-style');await D(1200);dotsOut(c);
-  addTo(c,"Here are the best Adventure Kingdom pass options for a family of 4 (July 12\u201317). I've included Affirm financing where available:",'gm-msg bot');
+  addTo(c,"Here are the best Adventure Kingdom pass options for a family of 5 (July 12\u201317). I've included Affirm financing where available:",'gm-msg bot');
   await D(500);
   const r=document.createElement('div');r.className='gm-results';
   r.innerHTML=`
-    <div class="gm-result" onclick="gmSelect('5-Day Base Pass','596',99)">
-      <div class="gm-result-top"><span class="gm-result-name">5-Day Base Pass (x4)</span><span class="gm-result-price">$596</span></div>
+    <div class="gm-result" onclick="gmSelect('5-Day Base Pass (x5)','745',62)">
+      <div class="gm-result-top"><span class="gm-result-name">5-Day Base Pass (x5)</span><span class="gm-result-price">$745</span></div>
       <div class="gm-result-desc">Standard admission, one park per day. Includes free parking. Most popular for first-time visitors.</div>
-      <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">As low as $99/mo at 0% APR</span></div>
+      <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">As low as $62/mo at 0% APR</span></div>
     </div>
-    <div class="gm-result" onclick="gmSelect('5-Day Park Hopper (x4)','892',149)">
-      <div class="gm-result-top"><span class="gm-result-name">5-Day Park Hopper (x4)</span><span class="gm-result-price">$892</span></div>
+    <div class="gm-result" onclick="gmSelect('5-Day Park Hopper (x5)','1,115',93)">
+      <div class="gm-result-top"><span class="gm-result-name">5-Day Park Hopper (x5)</span><span class="gm-result-price">$1,115</span></div>
       <div class="gm-result-desc">Unlimited access to all parks, hop between them daily. Best value for repeat visitors.</div>
-      <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">As low as $149/mo at 0% APR</span></div>
+      <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">As low as $93/mo at 0% APR</span></div>
     </div>
-    <div class="gm-result" onclick="gmSelect('5-Day VIP Experience (x4)','1,340',112)">
-      <div class="gm-result-top"><span class="gm-result-name">5-Day VIP Experience (x4)</span><span class="gm-result-price">$1,340</span></div>
+    <div class="gm-result" onclick="gmSelect('5-Day VIP Experience (x5)','1,675',140)">
+      <div class="gm-result-top"><span class="gm-result-name">5-Day VIP Experience (x5)</span><span class="gm-result-price">$1,675</span></div>
       <div class="gm-result-desc">Park Hopper + skip-the-line access, reserved seating, complimentary meal plan.</div>
-      <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">As low as $112/mo at 0% APR</span></div>
+      <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">As low as $140/mo at 0% APR</span></div>
     </div>`;
   document.getElementById(c).appendChild(r);
   scrollChat(c);
   await D(400);
-  addTo(c,"All three options include Affirm financing at 0% APR. Based on your Affirm purchasing power, you're pre-approved for any of these. The Base Pass gives you the most days for the lowest monthly payment.",'gm-msg bot');
+  addTo(c,"All three options include Affirm financing at 0% APR for your family of 5. You're pre-approved for any of these. The Base Pass gives you the most days for the lowest monthly payment.",'gm-msg bot');
 }
 function gmSelect(name,price,mo){
   currentCheckoutScene='gemini';
@@ -594,7 +594,7 @@ async function confirmGemini(){
   document.querySelector('.congrats-title').textContent='Congratulations, Amanda!';
   document.querySelector('.congrats-body').textContent='Your Adventure Kingdom passes are confirmed!';
   document.querySelector('.congrats-details').innerHTML=`
-    <div class="congrats-row"><span>Passes</span><span>5-Day Family Pass (x4)</span></div>
+    <div class="congrats-row"><span>Passes</span><span>5-Day Family Pass (x5)</span></div>
     <div class="congrats-row"><span>Park</span><span>Adventure Kingdom, Orlando</span></div>
     <div class="congrats-row"><span>Dates</span><span>Jul 12 &ndash; Jul 17, 2026</span></div>
     <div class="congrats-row" style="border:none"><span>Guests</span><span>2 adults + 3 kids</span></div>`;
