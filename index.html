@@ -360,6 +360,12 @@
   .suc-tt { font-size:14px;font-weight:700;color:var(--green);margin-bottom:6px; }
   .suc-bd { font-size:13px;line-height:1.5; }
 
+  .app-congrats-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .4s;z-index:300}
+  .app-congrats-ov.on{opacity:1;pointer-events:all}
+  .app-congrats{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);max-width:380px;width:calc(100% - 40px);background:#0e0e24;border-radius:24px;padding:32px 24px;text-align:center;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.4,0,.2,1);z-index:301;border:1px solid rgba(74,74,244,.2)}
+  .app-congrats.on{opacity:1;pointer-events:all;transform:translate(-50%,-50%) scale(1)}
+  #appCongratsCanvas{position:fixed;inset:0;z-index:9000;pointer-events:none;display:none}
+
   /* Password gate */
   .gate {
     position: fixed; inset: 0; z-index: 9999;
@@ -585,6 +591,22 @@
     <input class="ifield" id="I" placeholder="Type your message here" onkeydown="if(event.key==='Enter')send()">
     <button class="sbtn" onclick="send()"><svg width="18" height="18" fill="none"><path d="M2 9h14M10 3l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
+</div>
+
+<canvas id="appCongratsCanvas"></canvas>
+<!-- Congrats modal -->
+<div class="app-congrats-ov" id="appCongratsOv"></div>
+<div class="app-congrats" id="appCongrats">
+  <div style="width:56px;height:56px;margin:0 auto 16px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;color:white;box-shadow:0 0 30px rgba(0,214,143,.3)">&#10003;</div>
+  <div style="font-size:22px;font-weight:800;margin-bottom:4px">Congratulations, Amanda!</div>
+  <div id="appCongratsBody" style="font-size:14px;color:var(--text-secondary);margin-bottom:20px"></div>
+  <div id="appCongratsDetails" style="background:rgba(255,255,255,.04);border-radius:12px;padding:4px 16px;margin-bottom:16px;text-align:left"></div>
+  <div style="display:flex;align-items:center;gap:12px;justify-content:center;padding:14px;background:rgba(74,74,244,.08);border:1px solid rgba(74,74,244,.2);border-radius:12px;margin-bottom:12px">
+    <span style="font-size:16px;font-weight:800;color:var(--indigo-lt)">affirm</span>
+    <div><span id="appCongratsPlan" style="font-size:16px;font-weight:700"></span><br><span style="font-size:12px;color:var(--text-secondary)">0% APR &middot; No fees</span></div>
+  </div>
+  <div style="font-size:13px;color:var(--text-secondary);margin-bottom:20px">Remaining purchasing power: <strong id="appCongratsPP"></strong></div>
+  <button onclick="closeAppCongrats()" style="width:100%;padding:16px;background:var(--indigo);border:none;border-radius:100px;color:white;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Done</button>
 </div>
 
 <!-- Checkout -->
@@ -863,43 +885,107 @@ async function typeInChat(text,speed=40){
   ab(text,'me');IN.value='';
 }
 
+function appConfetti(){
+  const canvas=document.getElementById('appCongratsCanvas');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  canvas.style.display='block';
+  const ctx=canvas.getContext('2d');
+  const colors=['#4a4af4','#6e6ef8','#00d68f','#ffffff','#ffd700','#ff6b6b','#48dbfb'];
+  const pcs=[];
+  for(let i=0;i<120;i++){pcs.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height-canvas.height,w:Math.random()*8+4,h:Math.random()*6+3,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*3,vy:Math.random()*4+2,rot:Math.random()*360,vr:(Math.random()-0.5)*8,op:1});}
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;pcs.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=0.05;if(fr>80)p.op-=0.015;if(p.op>0&&p.y<canvas.height+50){alive=true;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.globalAlpha=Math.max(0,p.op);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();}});fr++;if(alive)requestAnimationFrame(draw);else canvas.style.display='none';}
+  draw();
+}
+
+function showAppCongrats(name,price,mo){
+  ppVal-=price;
+  document.querySelector('.pp-val').childNodes[0].textContent='$'+ppVal.toLocaleString();
+  if(window.parent!==window)window.parent.postMessage({type:'ppUpdate',value:ppVal},'*');
+  document.getElementById('appCongratsBody').textContent='Your '+name+' is on its way!';
+  document.getElementById('appCongratsDetails').innerHTML=
+    '<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#9090ae">Item</span><span>'+name+'</span></div>'+
+    '<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#9090ae">Price</span><span>$'+price+'</span></div>'+
+    '<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px"><span style="color:#9090ae">Shipping</span><span>Arrives before Jul 12</span></div>';
+  document.getElementById('appCongratsPlan').textContent='$'+mo+'/mo for '+Math.ceil(price/mo)+' months';
+  document.getElementById('appCongratsPP').textContent='$'+ppVal.toLocaleString();
+  appConfetti();
+  document.getElementById('appCongratsOv').classList.add('on');
+  document.getElementById('appCongrats').classList.add('on');
+}
+
+function closeAppCongrats(){
+  document.getElementById('appCongratsOv').classList.remove('on');
+  document.getElementById('appCongrats').classList.remove('on');
+}
+
+function removePills(){document.querySelectorAll('.pls').forEach((e,i,a)=>{if(i===a.length-1)e.remove();});}
+
 async function runAffordabilityDemo(){
   document.getElementById('C').classList.remove('go-r');
   document.body.style.overflow='hidden';
   MS.innerHTML='';
   await w(500);
 
-  // Step 1: Welcome
   ab("Hi Amanda! I\u2019m your Affirm Intelligence assistant. I can help you find the best deals, check what you can afford, or plan your next purchase.",'bot');
   await w(1500);
 
-  // Step 2: Amanda asks what she can afford
   await typeInChat("What all can I afford?");
   await resp("What all can I afford?");
-  await w(3000);
+  await w(3500);
 
-  // Step 3: Amanda checks payment schedule
-  document.querySelectorAll('.pls').forEach((e,i,a)=>{if(i===a.length-1)e.remove();});
+  removePills();
   await typeInChat("Show me my payment schedule");
   await resp("My payment schedule");
   await w(3000);
 
-  // Step 4: Amanda asks for saving tips
-  document.querySelectorAll('.pls').forEach((e,i,a)=>{if(i===a.length-1)e.remove();});
-  await typeInChat("How can I save more?");
-  await resp("Tips to save");
-  await w(3000);
-
-  // Step 5: Amanda asks about a specific purchase
-  document.querySelectorAll('.pls').forEach((e,i,a)=>{if(i===a.length-1)e.remove();});
+  removePills();
   await typeInChat("Can I afford a stroller for my Orlando trip?");
-  await resp("Can I afford a stroller for my Orlando trip?");
-  await w(2500);
 
-  // Step 6: Show strollers
-  document.querySelectorAll('.pls').forEach((e,i,a)=>{if(i===a.length-1)e.remove();});
-  await typeInChat("Show me strollers");
-  await resp("Show me strollers");
+  sd();await w(1000);hd();
+  ab("Great question! Let me check strollers against your budget. Here\u2019s what I found:",'bot');
+  await w(500);
+
+  const card=document.createElement('div');card.className='bub bot';card.style.maxWidth='92%';
+  card.innerHTML=`
+    <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">STROLLERS FOR YOUR TRIP</div>
+    <div style="padding:12px;border:1px solid rgba(0,214,143,.25);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:background .2s" onclick="showAppCongrats('Zoe Traveler Compact',349,29)" onmouseover="this.style.background='rgba(0,214,143,.06)'" onmouseout="this.style.background='transparent'">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Zoe Traveler: Compact</strong><div style="font-size:12px;color:var(--text-secondary)">$349 &middot; Zoe Baby</div></div>
+        <div style="text-align:right"><div style="color:#00d68f;font-weight:700;font-size:14px">$29/mo</div><div style="font-size:10px;color:#00d68f">Fits easily &#10003;</div></div>
+      </div>
+    </div>
+    <div style="padding:12px;border:1px solid rgba(0,214,143,.25);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:background .2s" onclick="showAppCongrats('Mompush Lithe V2',359,24)" onmouseover="this.style.background='rgba(0,214,143,.06)'" onmouseout="this.style.background='transparent'">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Mompush Lithe V2</strong><div style="font-size:12px;color:var(--text-secondary)">$359 &middot; Mompush</div></div>
+        <div style="text-align:right"><div style="color:#00d68f;font-weight:700;font-size:14px">$24/mo</div><div style="font-size:10px;color:#00d68f">Fits easily &#10003;</div></div>
+      </div>
+    </div>
+    <div style="padding:12px;border:1px solid rgba(0,214,143,.25);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:background .2s" onclick="showAppCongrats('Nuna TRVL Stroller',590,50)" onmouseover="this.style.background='rgba(0,214,143,.06)'" onmouseout="this.style.background='transparent'">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Nuna TRVL Stroller</strong><div style="font-size:12px;color:var(--text-secondary)">$590 &middot; Pottery Barn Kids</div></div>
+        <div style="text-align:right"><div style="color:#00d68f;font-weight:700;font-size:14px">$50/mo</div><div style="font-size:10px;color:#00d68f">Fits &#10003;</div></div>
+      </div>
+    </div>
+    <div style="padding:12px;border:1px solid rgba(217,119,6,.25);border-radius:12px;margin-bottom:8px;opacity:.7">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>UPPAbaby VISTA V3</strong><div style="font-size:12px;color:var(--text-secondary)">$849 &middot; Nordstrom</div></div>
+        <div style="text-align:right"><div style="color:#d97706;font-weight:700;font-size:14px">$71/mo</div><div style="font-size:10px;color:#d97706">Tight &#9888;</div></div>
+      </div>
+    </div>
+    <div style="padding:12px;border:1px solid rgba(220,38,38,.25);border-radius:12px;opacity:.5">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Bugaboo Fox 5</strong><div style="font-size:12px;color:var(--text-secondary)">$1,299 &middot; Bugaboo</div></div>
+        <div style="text-align:right"><div style="color:#dc2626;font-weight:700;font-size:14px">$108/mo</div><div style="font-size:10px;color:#dc2626">Over budget &#10007;</div></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:10px 14px;background:rgba(0,214,143,.08);border-radius:10px;border:1px solid rgba(0,214,143,.15);font-size:12px">
+      <strong style="color:#00d68f">Recommendation:</strong> The top 3 all fit comfortably within your $${ppVal.toLocaleString()} purchasing power. The Zoe Compact is the best value at $29/mo. Tap any green option to buy.
+    </div>`;
+  MS.appendChild(card);MS.scrollTop=MS.scrollHeight;
+
+  await w(500);
+  ab("The green options all fit your budget at 0% APR. The UPPAbaby would be tight, and the Bugaboo is over budget. I\u2019d recommend the Zoe Compact \u2014 lightest at 13 lbs, perfect for the park, and only $29/mo.",'bot');
 }
 </script>
 </body>
