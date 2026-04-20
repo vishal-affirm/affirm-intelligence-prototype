@@ -142,6 +142,34 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
 .suc-t{font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px}
 .suc-b{font-size:12px;line-height:1.5}
 
+/* Priceline input bar */
+.pl-input-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:12px 16px 32px;border-top:1px solid rgba(5,70,182,.2);display:flex;gap:10px;align-items:center;background:#0a1628;z-index:6}
+.pl-input{flex:1;padding:13px 18px;background:#0f1f3a;border:1px solid rgba(5,70,182,.3);border-radius:100px;color:var(--text);font-size:14px;font-family:inherit;outline:none}
+.pl-input:focus{border-color:var(--priceline-blue)}
+.pl-input::placeholder{color:var(--tdim)}
+.pl-send{width:42px;height:42px;background:var(--priceline-blue);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;flex-shrink:0}
+
+/* Congrats modal */
+.congrats-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .4s;z-index:300}
+.congrats-ov.on{opacity:1;pointer-events:all}
+.congrats-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);max-width:380px;width:calc(100% - 40px);background:#0e1e38;border-radius:24px;padding:32px 24px;text-align:center;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.4,0,.2,1);z-index:301;border:1px solid rgba(5,70,182,.3)}
+.congrats-modal.on{opacity:1;pointer-events:all;transform:translate(-50%,-50%) scale(1)}
+.congrats-icon{width:56px;height:56px;margin:0 auto 16px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;color:white;box-shadow:0 0 30px rgba(0,214,143,.3)}
+.congrats-title{font-size:22px;font-weight:800;margin-bottom:4px;letter-spacing:-.3px}
+.congrats-body{font-size:14px;color:var(--tsec);margin-bottom:20px}
+.congrats-details{background:rgba(255,255,255,.04);border-radius:12px;padding:4px 16px;margin-bottom:16px;text-align:left}
+.congrats-row{display:flex;justify-content:space-between;padding:10px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)}
+.congrats-row span:first-child{color:var(--tsec)}
+.congrats-affirm{display:flex;align-items:center;gap:12px;justify-content:center;padding:14px;background:rgba(74,74,244,.08);border:1px solid rgba(74,74,244,.2);border-radius:12px;margin-bottom:12px}
+.congrats-affirm-logo{font-size:16px;font-weight:800;color:var(--indigo-lt)}
+.congrats-affirm-amt{font-size:16px;font-weight:700}
+.congrats-pp{font-size:13px;color:var(--tsec);margin-bottom:20px}
+.congrats-btn{width:100%;padding:16px;background:var(--priceline-blue);border:none;border-radius:100px;color:white;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .2s}
+.congrats-btn:hover{background:#0660e0}
+
+/* Priceline chat padding for input bar */
+.pl-chat{padding-bottom:100px!important}
+
 /* Scene 3: Affirm App (iframe) */
 #s3 iframe{background:var(--bg)}
 </style>
@@ -181,6 +209,30 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
     <div class="pl-badge">AI Assistant</div>
   </div>
   <div class="pl-chat" id="pl-chat"></div>
+  <div class="pl-input-bar" id="pl-input-bar">
+    <input class="pl-input" id="pl-input" placeholder="Type your message here" onkeydown="if(event.key==='Enter')plSend()" readonly>
+    <button class="pl-send" onclick="plSend()"><svg width="18" height="18" fill="none"><path d="M2 9h14M10 3l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</div>
+
+<!-- Congrats modal -->
+<div class="congrats-ov" id="congratsOv"></div>
+<div class="congrats-modal" id="congratsModal">
+  <div class="congrats-icon">&#10003;</div>
+  <div class="congrats-title">Congratulations, Amanda!</div>
+  <div class="congrats-body">Your Orlando vacation is booked</div>
+  <div class="congrats-details">
+    <div class="congrats-row"><span>Flights</span><span>2 round-trip, JFK &rarr; MCO</span></div>
+    <div class="congrats-row"><span>Hotel</span><span>Hilton Orlando, 5 nights</span></div>
+    <div class="congrats-row"><span>Dates</span><span>Jul 12 &ndash; Jul 17, 2026</span></div>
+    <div class="congrats-row" style="border:none"><span>Family of 4</span><span>2 adults + 3 kids</span></div>
+  </div>
+  <div class="congrats-affirm">
+    <span class="congrats-affirm-logo">affirm</span>
+    <div><span class="congrats-affirm-amt" id="congrats-plan"></span><br><span style="font-size:12px;color:var(--tsec)">0% APR &middot; No fees</span></div>
+  </div>
+  <div class="congrats-pp">Remaining purchasing power: <strong id="congrats-pp-val"></strong></div>
+  <button class="congrats-btn" onclick="closeCongrats()">Continue to plan your trip &rarr;</button>
 </div>
 
 <!-- SCENE 2: GEMINI -->
@@ -260,72 +312,128 @@ function confirmCurrent(){
 }
 
 // ─── SCENE 1: PRICELINE ───
+const plMsg="I'm looking for an affordable vacation with my three kids";
+let plTyped=false, selectedPkg=null;
+
+async function typeText(el,text,speed=45){
+  el.removeAttribute('readonly');el.focus();
+  for(let i=0;i<text.length;i++){el.value=text.slice(0,i+1);await D(speed+(Math.random()*20-10));}
+}
+
 async function initScene1(){
   const c='pl-chat';
   dotsIn(c,'pl-style');await D(800);dotsOut(c);
-  addTo(c,"Hi Amanda! I'm Penny, your Priceline travel assistant. I can help you find the perfect vacation package. Where are you headed?",'pl-msg bot');
-  await D(300);
-  pillsTo(c,["Orlando for 5 nights","Beach getaway","Weekend trip"],'pl-style','plTap');
-}
-async function plTap(t){
-  const c='pl-chat';
-  document.querySelectorAll('#pl-chat .pill-row').forEach(e=>e.remove());
-  addTo(c,t,'pl-msg user');
-  dotsIn(c,'pl-style');await D(1200);dotsOut(c);
-  if(t.includes('Orlando')||t.includes('Book')||t.includes('book')){
-    addTo(c,"Great choice! I found an excellent package for your Orlando trip:",'pl-msg bot');
+  addTo(c,"Hi Amanda! I'm Penny, your Priceline travel assistant. I can help you find the perfect getaway for your family. What are you looking for?",'pl-msg bot');
+  await D(600);
+  if(!plTyped){
+    plTyped=true;
+    const inp=document.getElementById('pl-input');
     await D(400);
-    const deal=document.createElement('div');deal.className='pl-deal';
-    deal.innerHTML=`
-      <div class="pl-deal-title">Orlando Vacation Package</div>
-      <div class="pl-deal-row"><span class="pl-deal-label">Flights</span><span>2 round-trip, JFK &rarr; MCO</span></div>
-      <div class="pl-deal-row"><span class="pl-deal-label">Hotel</span><span>Hilton Orlando, 5 nights</span></div>
-      <div class="pl-deal-row"><span class="pl-deal-label">Dates</span><span>Jul 12 &ndash; Jul 17, 2026</span></div>
-      <div class="pl-deal-row"><span class="pl-deal-label">Total</span><span style="font-weight:700;font-size:16px">$1,847</span></div>
-      <div class="pl-affirm-offer" onclick="plCheckout()">
-        <div class="pl-affirm-badge">
-          <span class="pl-affirm-logo">affirm</span>
-          <span class="pl-affirm-tag">0% APR</span>
-        </div>
-        <div class="pl-affirm-terms">$154/mo for 12 months</div>
-        <div class="pl-affirm-sub">No interest. No fees. Pay over time with Affirm.</div>
-      </div>`;
-    document.getElementById(c).appendChild(deal);
-    document.getElementById(c).scrollTop=99999;
-    await D(400);
-    addTo(c,"You're pre-approved with Affirm for this purchase at 0% APR. Tap the Affirm offer to book with monthly payments!",'pl-msg bot');
-  } else {
-    addTo(c,"Let me search for options. For the best deals, I'd recommend Orlando\u2014great parks, weather, and I can find packages with 0% financing through Affirm!",'pl-msg bot');
-    await D(300);
-    pillsTo(c,["Orlando for 5 nights","Tell me more"],'pl-style','plTap');
+    await typeText(inp,plMsg);
+    await D(500);
+    plSend();
   }
 }
-function plCheckout(){
+
+async function plSend(){
+  const inp=document.getElementById('pl-input');
+  const t=inp.value.trim();
+  if(!t)return;
+  inp.value='';inp.setAttribute('readonly','');
+  addTo('pl-chat',t,'pl-msg user');
+  await plRespond(t);
+}
+
+async function plRespond(t){
+  const c='pl-chat',lo=t.toLowerCase();
+  dotsIn(c,'pl-style');await D(1200);dotsOut(c);
+
+  if(lo.includes('kid')||lo.includes('family')||lo.includes('affordable')||lo.includes('vacation')){
+    addTo(c,"A family of 4\u2014how fun! I found three great packages for you and your kids. All include Affirm financing at 0% APR so you can spread the cost:",'pl-msg bot');
+    await D(500);
+    const pkgs=[
+      {name:"Orlando Value Package",hotel:"Holiday Inn Resort Orlando",nights:5,price:1247,mo:104,tag:"Best Value"},
+      {name:"Orlando Family Favorite",hotel:"Hilton Orlando Buena Vista",nights:5,price:1847,mo:154,tag:"Most Popular"},
+      {name:"Orlando Premium Experience",hotel:"JW Marriott Grande Lakes",nights:5,price:2690,mo:224,tag:"Premium"}
+    ];
+    pkgs.forEach((p,i)=>{
+      const d=document.createElement('div');d.className='pl-deal';d.style.animationDelay=i*100+'ms';
+      d.innerHTML=`
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div class="pl-deal-title" style="margin:0">${p.name}</div>
+          <span style="font-size:10px;background:${p.tag==='Most Popular'?'var(--priceline-blue)':'rgba(255,255,255,.08)'};padding:3px 8px;border-radius:4px;font-weight:600">${p.tag}</span>
+        </div>
+        <div class="pl-deal-row"><span class="pl-deal-label">Flights</span><span>4 round-trip, JFK &rarr; MCO</span></div>
+        <div class="pl-deal-row"><span class="pl-deal-label">Hotel</span><span>${p.hotel}, ${p.nights} nights</span></div>
+        <div class="pl-deal-row"><span class="pl-deal-label">Dates</span><span>Jul 12 &ndash; Jul 17, 2026</span></div>
+        <div class="pl-deal-row"><span class="pl-deal-label">Guests</span><span>2 adults + 3 kids</span></div>
+        <div class="pl-deal-row" style="border:none"><span class="pl-deal-label">Total</span><span style="font-weight:700;font-size:16px">$${p.price.toLocaleString()}</span></div>
+        <div class="pl-affirm-offer" onclick="plSelectPkg(${i})">
+          <div class="pl-affirm-badge">
+            <span class="pl-affirm-logo">affirm</span>
+            <span class="pl-affirm-tag">0% APR</span>
+          </div>
+          <div class="pl-affirm-terms">$${p.mo}/mo for 12 months</div>
+          <div class="pl-affirm-sub">No interest. No fees. Pay over time with Affirm.</div>
+        </div>`;
+      document.getElementById(c).appendChild(d);
+    });
+    document.getElementById(c).scrollTop=99999;
+    await D(400);
+    addTo(c,"You're pre-approved with Affirm for all three options at 0% APR. Tap any Affirm offer to book!",'pl-msg bot');
+  } else if(lo.includes('gemini')){
+    showScene(2);
+  } else {
+    addTo(c,"I can help with that! For families with kids, Orlando is our top pick\u2014amazing parks, great weather, and I can find packages with 0% financing through Affirm.",'pl-msg bot');
+    await D(300);
+    pillsTo(c,["Find affordable family vacations","Beach getaway with kids"],'pl-style','plTapPill');
+  }
+}
+
+const plPkgs=[
+  {name:"Orlando Value Package",hotel:"Holiday Inn Resort Orlando",price:1247,mo:104},
+  {name:"Orlando Family Favorite",hotel:"Hilton Orlando Buena Vista",price:1847,mo:154},
+  {name:"Orlando Premium Experience",hotel:"JW Marriott Grande Lakes",price:2690,mo:224}
+];
+
+function plSelectPkg(i){
+  selectedPkg=plPkgs[i];
   currentCheckoutScene='priceline';
-  openSheet('Orlando Vacation Package',1847,154);
+  openSheet(selectedPkg.name,selectedPkg.price,selectedPkg.mo);
 }
+
+function plTapPill(t){
+  document.querySelectorAll('#pl-chat .pill-row').forEach(e=>e.remove());
+  addTo('pl-chat',t,'pl-msg user');
+  plRespond(t.includes('Beach')?'affordable vacation with my three kids':t);
+}
+
 async function confirmPriceline(){
-  ppVal-=1847;
-  await D(500);
-  const c='pl-chat';
-  const s=document.createElement('div');s.className='suc';
-  s.innerHTML=`<div class="suc-t">&#10003; Booking confirmed!</div><div class="suc-b">Your Orlando trip is booked. $154/mo at 0% APR. Confirmation sent to your email.<br><br>Your Affirm purchasing power is now <strong>$${ppVal.toLocaleString()}</strong>.</div>`;
-  document.getElementById(c).appendChild(s);
-  document.getElementById(c).scrollTop=99999;
-  await D(400);
-  addTo(c,"Amazing! Your trip is set. Need help with anything else for Orlando? I can help with day passes, rental cars, or activities!",'pl-msg bot');
-  await D(300);
-  pillsTo(c,["Day passes for Adventure Kingdom","Rental car","Go to Gemini for more"],'pl-style','plTap2');
+  const pkg=selectedPkg||plPkgs[1];
+  ppVal-=pkg.price;
+  document.getElementById('congrats-plan').textContent='$'+pkg.mo+'/mo for 12 months';
+  document.getElementById('congrats-pp-val').textContent='$'+ppVal.toLocaleString();
+  document.getElementById('congratsOv').classList.add('on');
+  document.getElementById('congratsModal').classList.add('on');
 }
+
+function closeCongrats(){
+  document.getElementById('congratsOv').classList.remove('on');
+  document.getElementById('congratsModal').classList.remove('on');
+  const c='pl-chat';
+  addTo(c,"Amazing! Your Orlando trip is booked. What else do you need for the trip?",'pl-msg bot');
+  setTimeout(()=>pillsTo(c,["Day passes for the parks","Search for deals on Gemini"],'pl-style','plTap2'),300);
+}
+
 async function plTap2(t){
-  if(t.includes('Gemini')){showScene(2);return;}
+  if(t.includes('Gemini')||t.includes('Search')){showScene(2);return;}
   const c='pl-chat';
   document.querySelectorAll('#pl-chat .pill-row').forEach(e=>e.remove());
   addTo(c,t,'pl-msg user');
   dotsIn(c,'pl-style');await D(800);dotsOut(c);
-  addTo(c,"For Adventure Kingdom day passes and local activities, I'd recommend checking Google Gemini\u2014it can compare options across multiple providers and show you Affirm financing on each one!",'pl-msg bot');
+  addTo(c,"For Adventure Kingdom day passes, I'd recommend Google Gemini\u2014it can compare options across providers and show Affirm financing on each one!",'pl-msg bot');
   await D(300);
-  pillsTo(c,["Go to Gemini"],'pl-style','plTap2');
+  pillsTo(c,["Search for deals on Gemini"],'pl-style','plTap2');
 }
 
 // ─── SCENE 2: GEMINI ───
