@@ -316,7 +316,6 @@ function dotsOut(cid){const d=document.getElementById('dots-'+cid);if(d)d.remove
 function pillsTo(cid,items,style,handler){const d=document.createElement('div');d.className='pill-row';d.innerHTML=items.map(t=>`<span class="pill-btn ${style}" onclick="${handler}('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('');document.getElementById(cid).appendChild(d);scrollChat(cid);}
 
 function openSheet(name,price,mo){
-  currentCheckoutScene=null;
   document.getElementById('sN').textContent=name;
   document.getElementById('sP').textContent='$'+price;
   document.getElementById('sT').textContent='$'+price+'.00';
