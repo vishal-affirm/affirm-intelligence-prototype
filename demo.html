@@ -315,7 +315,9 @@ function dotsIn(cid,style){const d=document.createElement('div');d.className='do
 function dotsOut(cid){const d=document.getElementById('dots-'+cid);if(d)d.remove();}
 function pillsTo(cid,items,style,handler){const d=document.createElement('div');d.className='pill-row';d.innerHTML=items.map(t=>`<span class="pill-btn ${style}" onclick="${handler}('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('');document.getElementById(cid).appendChild(d);scrollChat(cid);}
 
-function openSheet(name,price,mo){
+let pendingScene=null;
+function openSheet(name,price,mo,scene){
+  pendingScene=scene||null;
   document.getElementById('sN').textContent=name;
   document.getElementById('sP').textContent='$'+price;
   document.getElementById('sT').textContent='$'+price+'.00';
@@ -326,10 +328,11 @@ function openSheet(name,price,mo){
 function cs(){document.getElementById('ov').classList.remove('on');document.getElementById('sh').classList.remove('on');}
 
 async function confirmCurrent(){
+  const scene=pendingScene;
   cs();
   await D(400);
-  if(currentCheckoutScene==='priceline'){confirmPriceline();}
-  else if(currentCheckoutScene==='gemini'){confirmGemini();}
+  if(scene==='priceline'){confirmPriceline();}
+  else if(scene==='gemini'){confirmGemini();}
 }
 
 // ─── SCENE 1: PRICELINE (multi-step interactive) ───
@@ -580,8 +583,7 @@ async function initScene2(){
   addTo(c,"All three options include Affirm financing at 0% APR for your family of 5. You're pre-approved for any of these. The Base Pass gives you the most days for the lowest monthly payment.",'gm-msg bot');
 }
 function gmSelect(name,price,mo){
-  currentCheckoutScene='gemini';
-  openSheet(name,parseInt(price.replace(/,/g,'')),mo);
+  openSheet(name,parseInt(price.replace(/,/g,'')),mo,'gemini');
 }
 async function confirmGemini(){
   const price=parseInt(document.getElementById('sP').textContent.replace(/\$/g,'').replace(/,/g,''));
