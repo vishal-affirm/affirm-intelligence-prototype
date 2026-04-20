@@ -467,8 +467,7 @@ async function plPickHotel(hotel,idx){
   const terms=[
     {months:6,mo:Math.ceil(p/6),apr:"0%",int:0,label:"6 months",tag:"0% APR",tagColor:"#00d68f"},
     {months:12,mo:Math.ceil(p/12),apr:"0%",int:0,label:"12 months",tag:"0% APR",tagColor:"#00d68f"},
-    {months:18,mo:Math.ceil((p*1.08)/18),apr:"10.36%",int:Math.ceil(p*0.08),label:"18 months",tag:"Low APR",tagColor:"#d97706"},
-    {months:36,mo:Math.ceil((p*1.20)/36),apr:"17.99%",int:Math.ceil(p*0.20),label:"36 months",tag:"Longest term",tagColor:"var(--tsec)"}
+    {months:36,mo:Math.ceil((p*1.20)/36),apr:"17.99%",int:Math.ceil(p*0.20),label:"36 months",tag:"Lowest monthly",tagColor:"var(--tsec)"}
   ];
 
   addTo(c,"Here\u2019s your personalized package at "+hotel+":",'pl-msg bot');
@@ -500,7 +499,7 @@ async function plPickHotel(hotel,idx){
   document.getElementById(c).appendChild(d);
   scrollChat(c);
   await D(300);
-  addTo(c,"The 6 and 12 month plans are 0% interest\u2014you pay exactly $"+p.toLocaleString()+". The 18 and 36 month plans have interest but lower monthly payments. Pick the one that works best for your family.",'pl-msg bot');
+  addTo(c,"The 6 and 12 month plans are 0% interest\u2014you pay exactly $"+p.toLocaleString()+". The 36 month plan has interest but the lowest monthly payment. Pick the one that works best for your family.",'pl-msg bot');
 }
 
 function plSelectTerm(price,mo,months,name,apr){
