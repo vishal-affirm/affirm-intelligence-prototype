@@ -142,6 +142,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
 .suc-t{font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px}
 .suc-b{font-size:12px;line-height:1.5}
 
+/* Affirm term cards */
+.pl-term{display:flex;align-items:center;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.pl-term:hover{border-color:var(--indigo);background:rgba(74,74,244,.08)}
+.pl-term:last-child{margin-bottom:0}
+.pl-term-pop{border-color:rgba(5,70,182,.4);background:rgba(5,70,182,.08)}
+
 /* Priceline selectable rows */
 .pl-dest{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,.04)}
 .pl-dest:last-child{border:none}
@@ -195,6 +201,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
   </div>
 </div>
 
+<canvas id="confettiCanvas" style="position:fixed;inset:0;z-index:9000;pointer-events:none;display:none"></canvas>
 <div id="app" style="display:none">
 
 <!-- Scene nav -->
@@ -297,10 +304,11 @@ function showScene(n){
 }
 
 // ─── HELPERS ───
-function addTo(cid,html,cls){const d=document.createElement('div');d.className=cls;d.innerHTML=html;document.getElementById(cid).appendChild(d);document.getElementById(cid).scrollTop=99999;}
-function dotsIn(cid,style){const d=document.createElement('div');d.className='dots-a '+style;d.id='dots-'+cid;d.innerHTML='<div class="da"></div><div class="da"></div><div class="da"></div>';document.getElementById(cid).appendChild(d);document.getElementById(cid).scrollTop=99999;}
+function scrollChat(cid){const el=document.getElementById(cid);setTimeout(()=>el.scrollTo({top:el.scrollHeight,behavior:'smooth'}),50);}
+function addTo(cid,html,cls){const d=document.createElement('div');d.className=cls;d.innerHTML=html;document.getElementById(cid).appendChild(d);scrollChat(cid);}
+function dotsIn(cid,style){const d=document.createElement('div');d.className='dots-a '+style;d.id='dots-'+cid;d.innerHTML='<div class="da"></div><div class="da"></div><div class="da"></div>';document.getElementById(cid).appendChild(d);scrollChat(cid);}
 function dotsOut(cid){const d=document.getElementById('dots-'+cid);if(d)d.remove();}
-function pillsTo(cid,items,style,handler){const d=document.createElement('div');d.className='pill-row';d.innerHTML=items.map(t=>`<span class="pill-btn ${style}" onclick="${handler}('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('');document.getElementById(cid).appendChild(d);document.getElementById(cid).scrollTop=99999;}
+function pillsTo(cid,items,style,handler){const d=document.createElement('div');d.className='pill-row';d.innerHTML=items.map(t=>`<span class="pill-btn ${style}" onclick="${handler}('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('');document.getElementById(cid).appendChild(d);scrollChat(cid);}
 
 function openSheet(name,price,mo){
   currentCheckoutScene=null;
@@ -363,7 +371,7 @@ async function plStep1(){
     <div class="pl-dest" onclick="plPickDest('Cancun, Mexico')"><span>&#127754;</span><div><strong>Cancun, Mexico</strong><div style="font-size:11px;color:var(--tsec)">All-inclusive resorts, beaches</div></div><span style="font-size:11px;color:var(--tsec)">From $1,890</span></div>
     <div class="pl-dest" onclick="plPickDest('San Diego, CA')"><span>&#128011;</span><div><strong>San Diego, CA</strong><div style="font-size:11px;color:var(--tsec)">Zoo, beaches, LEGOLAND</div></div><span style="font-size:11px;color:var(--tsec)">From $1,560</span></div>`;
   document.getElementById(c).appendChild(d);
-  document.getElementById(c).scrollTop=99999;
+  scrollChat(c);
 }
 
 // Step 2: Dates
@@ -380,7 +388,7 @@ async function plPickDest(dest){
     <div class="pl-dest" onclick="plPickDates('Jul 19 \u2013 Jul 26','7 nights')"><span>&#9728;&#65039;</span><div><strong>Jul 19 \u2013 Jul 26</strong><div style="font-size:11px;color:var(--tsec)">7 nights &middot; Extended stay</div></div><span style="font-size:11px;color:var(--tsec)">+15% more</span></div>
     <div class="pl-dest" onclick="plPickDates('Aug 2 \u2013 Aug 7','5 nights')"><span>&#9728;&#65039;</span><div><strong>Aug 2 \u2013 Aug 7</strong><div style="font-size:11px;color:var(--tsec)">5 nights &middot; Late summer</div></div><span style="font-size:11px;color:var(--tsec)">Similar price</span></div>`;
   document.getElementById(c).appendChild(d);
-  document.getElementById(c).scrollTop=99999;
+  scrollChat(c);
 }
 
 // Step 3: Hotels
@@ -414,10 +422,10 @@ async function plPickDates(dates,nights){
       </div>`;
     document.getElementById(c).appendChild(d);
   });
-  document.getElementById(c).scrollTop=99999;
+  scrollChat(c);
 }
 
-// Step 4: Show packages with Affirm
+// Step 4: Show package with three Affirm terms
 async function plPickHotel(hotel,idx){
   plChosenHotel=hotel;
   const c='pl-chat';
@@ -425,13 +433,18 @@ async function plPickHotel(hotel,idx){
   dotsIn(c,'pl-style');await D(1200);dotsOut(c);
 
   const pkgData=[
-    {name:"Orlando Value Package",hotel:"Holiday Inn Resort Orlando",price:1247,mo:104},
-    {name:"Orlando Family Favorite",hotel:"Hilton Orlando Buena Vista",price:1847,mo:154},
-    {name:"Orlando Premium Experience",hotel:"JW Marriott Grande Lakes",price:2690,mo:224}
+    {name:"Orlando Value Package",hotel:"Holiday Inn Resort Orlando",price:1247},
+    {name:"Orlando Family Favorite",hotel:"Hilton Orlando Buena Vista",price:1847},
+    {name:"Orlando Premium Experience",hotel:"JW Marriott Grande Lakes",price:2690}
   ];
   const pkg=pkgData[idx];
+  const terms=[
+    {months:6,mo:Math.ceil(pkg.price/6),label:"6 months"},
+    {months:12,mo:Math.ceil(pkg.price/12),label:"12 months"},
+    {months:24,mo:Math.ceil(pkg.price/24),label:"24 months"}
+  ];
 
-  addTo(c,"Here\u2019s your personalized package at "+hotel+". Flights + hotel bundled for the best price, with Affirm 0% financing:",'pl-msg bot');
+  addTo(c,"Here\u2019s your personalized package at "+hotel+":",'pl-msg bot');
   await D(400);
 
   const d=document.createElement('div');d.className='pl-deal';
@@ -442,40 +455,76 @@ async function plPickHotel(hotel,idx){
     <div class="pl-deal-row"><span class="pl-deal-label">Dates</span><span>${plChosenDates}</span></div>
     <div class="pl-deal-row"><span class="pl-deal-label">Guests</span><span>2 adults + 3 kids</span></div>
     <div class="pl-deal-row" style="border:none"><span class="pl-deal-label">Total</span><span style="font-weight:700;font-size:18px">$${pkg.price.toLocaleString()}</span></div>
-    <div class="pl-affirm-offer" onclick="plSelectPkg(${idx})">
-      <div class="pl-affirm-badge">
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
+      <div class="pl-affirm-badge" style="margin-bottom:10px">
         <span class="pl-affirm-logo">affirm</span>
         <span class="pl-affirm-tag">PRE-APPROVED &middot; 0% APR</span>
       </div>
-      <div class="pl-affirm-terms">$${pkg.mo}/mo for 12 months</div>
-      <div class="pl-affirm-sub">No interest. No fees. Pay over time with Affirm.</div>
+      <div style="font-size:13px;color:var(--tsec);margin-bottom:10px">Choose your payment plan:</div>
+      ${terms.map((t,ti)=>`
+        <div class="pl-term${ti===1?' pl-term-pop':''}" onclick="plSelectTerm(${pkg.price},${t.mo},${t.months},'${pkg.name.replace(/'/g,"\\'")}')">
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:15px">$${t.mo}/mo</div>
+            <div style="font-size:11px;color:var(--tsec)">${t.label} &middot; 0% APR &middot; $0 down</div>
+          </div>
+          ${ti===1?'<span style="font-size:9px;background:var(--priceline-blue);padding:3px 8px;border-radius:4px;font-weight:700">POPULAR</span>':''}
+        </div>`).join('')}
     </div>`;
   document.getElementById(c).appendChild(d);
-  document.getElementById(c).scrollTop=99999;
+  scrollChat(c);
   await D(300);
-  addTo(c,"You\u2019re pre-approved! Tap the Affirm offer to lock in your trip at $"+pkg.mo+"/mo.",'pl-msg bot');
+  addTo(c,"You\u2019re pre-approved for all three plans! Pick the monthly payment that works best for your family.",'pl-msg bot');
 }
 
-const plPkgs=[
-  {name:"Orlando Value Package",hotel:"Holiday Inn Resort Orlando",price:1247,mo:104},
-  {name:"Orlando Family Favorite",hotel:"Hilton Orlando Buena Vista",price:1847,mo:154},
-  {name:"Orlando Premium Experience",hotel:"JW Marriott Grande Lakes",price:2690,mo:224}
-];
-
-function plSelectPkg(i){
-  selectedPkg=plPkgs[i];
-  currentCheckoutScene='priceline';
-  openSheet(selectedPkg.name,selectedPkg.price,selectedPkg.mo);
-}
-
-async function confirmPriceline(){
-  const pkg=selectedPkg||plPkgs[1];
-  ppVal-=pkg.price;
-  document.getElementById('congrats-plan').textContent='$'+pkg.mo+'/mo for 12 months';
+function plSelectTerm(price,mo,months,name){
+  selectedPkg={name,price,mo,months};
+  ppVal-=price;
+  document.getElementById('congrats-plan').textContent='$'+mo+'/mo for '+months+' months';
   document.getElementById('congrats-pp-val').textContent='$'+ppVal.toLocaleString();
+  launchConfetti();
   document.getElementById('congratsOv').classList.add('on');
   document.getElementById('congratsModal').classList.add('on');
 }
+
+// Confetti
+function launchConfetti(){
+  const canvas=document.getElementById('confettiCanvas');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  canvas.style.display='block';
+  const ctx=canvas.getContext('2d');
+  const colors=['#4a4af4','#6e6ef8','#00d68f','#0546b6','#ffffff','#ffd700','#ff6b6b','#48dbfb'];
+  const pieces=[];
+  for(let i=0;i<150;i++){
+    pieces.push({
+      x:Math.random()*canvas.width,y:Math.random()*canvas.height-canvas.height,
+      w:Math.random()*8+4,h:Math.random()*6+3,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      vx:(Math.random()-0.5)*3,vy:Math.random()*4+2,
+      rot:Math.random()*360,vr:(Math.random()-0.5)*8,
+      opacity:1
+    });
+  }
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive=false;
+    pieces.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=0.05;
+      if(frame>80)p.opacity-=0.015;
+      if(p.opacity>0&&p.y<canvas.height+50){alive=true;
+        ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+        ctx.globalAlpha=Math.max(0,p.opacity);ctx.fillStyle=p.color;
+        ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+      }
+    });
+    frame++;
+    if(alive)requestAnimationFrame(draw);
+    else{canvas.style.display='none';}
+  }
+  draw();
+}
+
+async function confirmPriceline(){}
 
 function closeCongrats(){
   document.getElementById('congratsOv').classList.remove('on');
