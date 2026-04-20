@@ -25,15 +25,16 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
 .scene-label{text-align:center;font-size:10px;color:var(--tdim);margin-top:6px;letter-spacing:1px;text-transform:uppercase}
 
 /* Scenes */
-.scene{display:none;max-width:430px;margin:0 auto;min-height:100vh;padding-top:72px}
-.scene.on{display:block}
+.scene{display:none;max-width:430px;margin:0 auto;height:100vh;padding-top:72px;overflow:hidden}
+.scene.on{display:flex;flex-direction:column}
 
 /* ═══ SCENE 1: PRICELINE ═══ */
 .pl-header{background:var(--priceline-dark);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--priceline-blue)}
 .pl-logo{font-size:20px;font-weight:700;color:white;display:flex;align-items:center;gap:8px}
 .pl-logo svg{display:block}
 .pl-badge{font-size:10px;background:var(--priceline-blue);padding:3px 8px;border-radius:4px;color:white;font-weight:600}
-.pl-chat{background:#0a1628;padding:16px;min-height:calc(100vh - 150px);display:flex;flex-direction:column;gap:12px}
+.pl-chat{background:#0a1628;padding:16px;height:calc(100vh - 150px);display:flex;flex-direction:column;gap:12px;overflow-y:auto;scrollbar-width:none}
+.pl-chat::-webkit-scrollbar{display:none}
 .pl-msg{max-width:85%;padding:14px 18px;border-radius:16px;font-size:14px;line-height:1.6;animation:pop .3s ease}
 .pl-msg.bot{background:#0f1f3a;border:1px solid rgba(5,70,182,.3);align-self:flex-start;border-bottom-left-radius:4px}
 .pl-msg.user{background:var(--priceline-blue);align-self:flex-end;border-bottom-right-radius:4px}
@@ -55,7 +56,8 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
 .gm-logo{display:flex;align-items:center;gap:8px}
 .gm-logo-icon{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#ea4335,#fbbc05,#34a853);display:flex;align-items:center;justify-content:center}
 .gm-logo-text{font-size:18px;font-weight:500;color:white;font-family:'Google Sans',Inter,sans-serif}
-.gm-body{background:var(--gemini-bg);padding:16px;min-height:calc(100vh - 140px);display:flex;flex-direction:column;gap:12px}
+.gm-body{background:var(--gemini-bg);padding:16px;height:calc(100vh - 140px);display:flex;flex-direction:column;gap:12px;overflow-y:auto;scrollbar-width:none}
+.gm-body::-webkit-scrollbar{display:none}
 .gm-msg{max-width:88%;padding:14px 18px;border-radius:18px;font-size:14px;line-height:1.6;animation:pop .3s ease}
 .gm-msg.bot{background:var(--gemini-surface);align-self:flex-start;border-bottom-left-radius:4px}
 .gm-msg.user{background:#2d4a7a;align-self:flex-end;border-bottom-right-radius:4px}
@@ -182,7 +184,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
 .congrats-btn:hover{background:#0660e0}
 
 /* Priceline chat padding for input bar */
-.pl-chat{padding-bottom:100px!important}
+.pl-chat{padding-bottom:80px!important}
 
 /* Scene 3: Affirm App (iframe) */
 #s3 iframe{background:var(--bg)}
@@ -306,8 +308,11 @@ function showScene(n){
 // ─── HELPERS ───
 function scrollChat(cid){
   setTimeout(()=>{
-    window.scrollTo({top:document.body.scrollHeight+500,behavior:'smooth'});
-    setTimeout(()=>window.scrollTo({top:document.body.scrollHeight+500,behavior:'smooth'}),300);
+    const el=document.getElementById(cid);
+    if(el){
+      el.scrollTo({top:el.scrollHeight+500,behavior:'smooth'});
+      setTimeout(()=>el.scrollTo({top:el.scrollHeight+500,behavior:'smooth'}),300);
+    }
   },100);
 }
 function addTo(cid,html,cls){const d=document.createElement('div');d.className=cls;d.innerHTML=html;document.getElementById(cid).appendChild(d);scrollChat(cid);}
