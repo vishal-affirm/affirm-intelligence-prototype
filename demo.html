@@ -305,12 +305,15 @@ function showScene(n){
 
 // ─── HELPERS ───
 function scrollChat(cid){
-  const el=document.getElementById(cid);
   setTimeout(()=>{
-    el.scrollTo({top:el.scrollHeight,behavior:'smooth'});
+    const el=document.getElementById(cid);
+    if(!el)return;
     const last=el.lastElementChild;
-    if(last)last.scrollIntoView({behavior:'smooth',block:'end'});
-  },80);
+    if(last){
+      window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+      last.scrollIntoView({behavior:'smooth',block:'end'});
+    }
+  },100);
 }
 function addTo(cid,html,cls){const d=document.createElement('div');d.className=cls;d.innerHTML=html;document.getElementById(cid).appendChild(d);scrollChat(cid);}
 function dotsIn(cid,style){const d=document.createElement('div');d.className='dots-a '+style;d.id='dots-'+cid;d.innerHTML='<div class="da"></div><div class="da"></div><div class="da"></div>';document.getElementById(cid).appendChild(d);scrollChat(cid);}
