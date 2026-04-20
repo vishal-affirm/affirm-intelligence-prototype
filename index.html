@@ -636,7 +636,7 @@ const fl={
   doubles:{hi:"Here are the top-rated double strollers among park visitors\u2014all under $900 with 0% APR.",it:cat.doubles,then:"The Zoe Twin is the lightest at 19 lbs. The UPPAbaby is premium but the best ride quality.",pl:["Compare top 2","Which fits a car trunk?","Best for newborn + toddler"]},
   sunglasses:{hi:"Here are sunglasses options\u2014a mix of styles and prices, all within your purchasing power.",it:cat.sunglasses,then:"The Goodr is $25\u2014perfect for a park day. The Ray-Bans are a classic investment.",pl:["Polarized only","Under $50","Sport style"]},
   coolers:{hi:"Great choice for the park! Here are coolers that fit your budget.",it:cat.coolers,then:"The Coleman is $55\u2014pay now, no plan needed. The Yeti keeps ice 5+ days.",pl:["Biggest capacity","Under $100","With wheels"]},
-  afford:{hi:"Let me check your finances, Amanda.\n\n<strong>Purchasing power:</strong> $2,000\n<strong>Active loans:</strong> 2 ($89/mo total)\n<strong>Next payment:</strong> in 6 days\n\nA $600 stroller at 0% APR would add ~$50/mo for 12 months. That keeps you well within your monthly budget. <strong>You can afford it comfortably.</strong>",pl:["Show me options under $600","What about $800?","My payment schedule"]},
+  afford:{hi:null,pl:["Show me options under $600","What about $800?","My payment schedule"]},
   welcome:{hi:"Hi Amanda! I\u2019m your Affirm Intelligence assistant. I can help you find the best deals across 220K+ merchants, check what you can afford, or plan your next purchase. What\u2019s on your mind?",pl:["Get ready for Orlando trip","What can I afford?","Show me 0% deals","My financial summary"]}
 };
 
@@ -648,7 +648,9 @@ function apl(arr){const w=document.createElement('div');w.className='pls';w.inne
 function sd(){const d=document.createElement('div');d.className='dots-w';d.id='typ';d.innerHTML='<div class="dt"></div><div class="dt"></div><div class="dt"></div>';MS.appendChild(d);MS.scrollTop=MS.scrollHeight;}
 function hd(){const d=document.getElementById('typ');if(d)d.remove();}
 
-async function resp(t){const k=intent(t),f=fl[k]||fl.welcome;sd();await w(900);hd();ab(f.hi,'bot');if(f.it){await w(500);ap(f.it);if(f.then){await w(400);ab(f.then,'bot');}}if(f.pl){await w(300);apl(f.pl);}}
+async function resp(t){const k=intent(t),f=fl[k]||fl.welcome;sd();await w(900);hd();
+  const msg=f.hi||"Let me check your finances, Amanda.\n\n<strong>Purchasing power:</strong> $"+ppVal.toLocaleString()+"\n<strong>Active loans:</strong> 2 ($89/mo total)\n<strong>Next payment:</strong> in 6 days\n\nA $600 stroller at 0% APR would add ~$50/mo for 12 months. That keeps you well within your monthly budget. <strong>You can afford it comfortably.</strong>";
+  ab(msg,'bot');if(f.it){await w(500);ap(f.it);if(f.then){await w(400);ab(f.then,'bot');}}if(f.pl){await w(300);apl(f.pl);}}
 function send(){const t=IN.value.trim();if(!t)return;ab(t,'me');IN.value='';resp(t);}
 function tap(t){document.querySelectorAll('.pls').forEach((e,i,a)=>{if(i===a.length-1)e.remove();});ab(t,'me');resp(t);}
 
@@ -658,8 +660,22 @@ function back(){document.getElementById('C').classList.add('go-r');document.body
 
 function os(item){document.getElementById('sL').innerHTML=item.img?'<img src="'+item.img+'" alt="">':'';document.getElementById('sN').textContent=item.n;document.getElementById('sP').textContent='$'+item.p;document.getElementById('sT').textContent='$'+item.p+'.00';document.getElementById('sPl').innerHTML=item.mo>0?'<strong>$'+item.mo+'.00 every month for '+Math.ceil(item.p/item.mo)+' months</strong>':'<strong>Pay now &mdash; $'+item.p+'</strong>';document.getElementById('ov').classList.add('on');document.getElementById('sh').classList.add('on');}
 function cs(){document.getElementById('ov').classList.remove('on');document.getElementById('sh').classList.remove('on');}
-function buy(){cs();setTimeout(()=>{const s=document.createElement('div');s.className='suc-card';s.innerHTML='<div class="suc-tt">&#10003; Purchase confirmed</div><div class="suc-bd">Your order is on its way. Your purchasing power is now <strong>$1,471</strong>. Want to keep shopping for your trip?</div>';MS.appendChild(s);MS.scrollTop=MS.scrollHeight;setTimeout(()=>apl(["Keep shopping","Show updated budget","That's all for now"]),400);},500);}
+function buy(){cs();setTimeout(()=>{
+  const price=parseInt(document.getElementById('sP').textContent.replace(/\$/g,'').replace(/,/g,''));
+  ppVal-=price;
+  document.querySelector('.pp-val').childNodes[0].textContent='$'+ppVal.toLocaleString();
+  if(window.parent!==window)window.parent.postMessage({type:'ppUpdate',value:ppVal},'*');
+  const s=document.createElement('div');s.className='suc-card';s.innerHTML='<div class="suc-tt">&#10003; Purchase confirmed</div><div class="suc-bd">Your order is on its way. Your purchasing power is now <strong>$'+ppVal.toLocaleString()+'</strong>. Want to keep shopping for your trip?</div>';MS.appendChild(s);MS.scrollTop=MS.scrollHeight;setTimeout(()=>apl(["Keep shopping","Show updated budget","That's all for now"]),400);},500);}
 function w(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// Purchasing power - can be set by parent frame via postMessage
+let ppVal=2000;
+window.addEventListener('message',function(e){
+  if(e.data&&e.data.type==='setPP'){
+    ppVal=e.data.value;
+    document.querySelector('.pp-val').childNodes[0].textContent='$'+ppVal.toLocaleString();
+  }
+});
 
 const PASS_HASH='f613d7f4426e7eeb12ca33afaf9663940a8a028e99dc0b706d614230cb51f63a';
 async function sha256(s){const d=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');}
