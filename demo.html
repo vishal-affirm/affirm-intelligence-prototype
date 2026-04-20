@@ -285,7 +285,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
 
 <script>
 const D=ms=>new Promise(r=>setTimeout(r,ms));
-let currentCheckoutScene=null, ppVal=2000;
+let currentCheckoutScene=null, ppVal=4000;
 
 // ─── AUTH ───
 const PH='f613d7f4426e7eeb12ca33afaf9663940a8a028e99dc0b706d614230cb51f63a';
@@ -586,10 +586,11 @@ function gmSelect(name,price,mo){
 async function confirmGemini(){
   const price=parseInt(document.getElementById('sP').textContent.replace(/\$/g,'').replace(/,/g,''));
   ppVal-=price;
+  launchConfetti();
   await D(500);
   const c='gm-chat';
   const s=document.createElement('div');s.className='suc';
-  s.innerHTML=`<div class="suc-t">&#10003; Passes purchased!</div><div class="suc-b">Your Adventure Kingdom passes are confirmed. Check your email for the QR codes.<br><br>Affirm purchasing power: <strong>$${ppVal.toLocaleString()}</strong></div>`;
+  s.innerHTML=`<div class="suc-t">&#10003; Passes purchased!</div><div class="suc-b">Your Adventure Kingdom passes are confirmed! Check your email for the QR codes.<br><br>Remaining purchasing power: <strong>$${ppVal.toLocaleString()}</strong></div>`;
   document.getElementById(c).appendChild(s);
   scrollChat(c);
   await D(400);
