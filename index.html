@@ -940,6 +940,11 @@ async function runAffordabilityDemo(){
   await w(3000);
 
   removePills();
+  await typeInChat("How can I save more?");
+  await resp("Tips to save");
+  await w(3500);
+
+  removePills();
   await typeInChat("Can I afford a stroller for my Orlando trip?");
 
   sd();await w(1000);hd();
