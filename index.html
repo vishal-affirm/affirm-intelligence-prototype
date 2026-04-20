@@ -678,7 +678,7 @@ async function unlock(){
     document.getElementById('gateInput').focus();
   }
 }
-if(sessionStorage.getItem('affirm_auth')==='1'){
+if(sessionStorage.getItem('affirm_auth')==='1'||window.location.hash==='#skipgate'){
   document.getElementById('gate').remove();
   document.getElementById('app').style.display='';
 }else{

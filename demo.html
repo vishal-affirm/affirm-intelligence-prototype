@@ -142,32 +142,8 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
 .suc-t{font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px}
 .suc-b{font-size:12px;line-height:1.5}
 
-/* Scene 3: Affirm App */
-.af-header{padding:8px 20px 0;display:flex;justify-content:space-between;align-items:center}
-.af-logo{font-size:24px;font-weight:800;color:white}
-.af-pp{text-align:center;padding:24px 20px 20px}
-.af-pp-label{font-size:14px;color:var(--tsec);margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:6px}
-.af-pp-val{font-size:48px;font-weight:800;letter-spacing:-2px}
-.af-trip-banner{margin:0 20px 16px;padding:16px 20px;background:rgba(74,74,244,.08);border:1px solid rgba(74,74,244,.2);border-radius:16px}
-.af-trip-title{font-size:15px;font-weight:700;margin-bottom:4px}
-.af-trip-sub{font-size:12px;color:var(--tsec)}
-.af-trip-items{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.af-trip-item{padding:6px 12px;background:var(--card);border:1px solid var(--border);border-radius:100px;font-size:11px;font-weight:500;display:flex;align-items:center;gap:4px}
-.af-trip-item.done{color:var(--green);border-color:rgba(0,214,143,.2)}
-.ch{padding:10px 18px;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:100px;font-size:14px;font-weight:500;color:var(--text);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
-.ch:hover{border-color:var(--indigo);background:rgba(74,74,244,.08)}
-.tb{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;width:56px}
-.tb-ic{height:24px;display:flex;align-items:center;justify-content:center}
-.tb-lb{font-size:10px;font-weight:600;color:var(--tdim)}
-.tb.on .tb-lb{color:var(--text)}
-.af-chat-scr{position:fixed;top:0;left:50%;width:100%;max-width:430px;height:100vh;background:var(--bg);z-index:15;display:flex;flex-direction:column}
-.af-chat-scr.go-r{transform:translateX(100%);opacity:0;pointer-events:none}
-.af-chat-scr:not(.go-r){transform:translateX(-50%)}
-.af-chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth;scrollbar-width:none}
-.af-chat-msgs::-webkit-scrollbar{display:none}
-.bub{max-width:82%;padding:14px 18px;border-radius:20px;font-size:14px;line-height:1.55;animation:pop .3s ease}
-.bub.bot{background:#111128;border:1px solid rgba(74,74,244,.12);align-self:flex-start;border-bottom-left-radius:6px}
-.bub.me{background:var(--indigo);align-self:flex-end;border-bottom-right-radius:6px}
+/* Scene 3: Affirm App (iframe) */
+#s3 iframe{background:var(--bg)}
 </style>
 </head>
 <body>
@@ -218,105 +194,9 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
   <div class="gm-body" id="gm-chat"></div>
 </div>
 
-<!-- SCENE 3: AFFIRM APP -->
-<div class="scene" id="s3">
-  <!-- App home -->
-  <div id="af-home">
-    <div class="af-header">
-      <div class="af-logo">affirm</div>
-      <div style="display:flex;gap:12px">
-        <svg width="24" height="24" fill="none" stroke="#9090ae" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
-        <svg width="24" height="24" fill="none" stroke="#9090ae" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
-      </div>
-    </div>
-    <div class="af-pp">
-      <div class="af-pp-label"><svg width="14" height="16" fill="none"><path d="M8 1L2 9h5l-1 6 6-8H7l1-6z" fill="#4a4af4"/></svg> Amanda, your purchasing power is</div>
-      <div class="af-pp-val" id="af-pp-val">$2,000</div>
-    </div>
-
-    <!-- Trip banner -->
-    <div class="af-trip-banner">
-      <div class="af-trip-title">Your Orlando Trip</div>
-      <div class="af-trip-sub" id="af-trip-sub">3 items planned &middot; 1 booked</div>
-      <div class="af-trip-items">
-        <span class="af-trip-item done">&#10003; Flights + Hotel</span>
-        <span class="af-trip-item done" id="af-passes-chip" style="display:none">&#10003; Day Passes</span>
-        <span class="af-trip-item" id="af-stroller-chip">Stroller</span>
-        <span class="af-trip-item">Park Gear</span>
-      </div>
-    </div>
-
-    <!-- Orlando CTA -->
-    <div style="margin:0 20px 14px;padding:14px 20px;background:var(--card);border:1px solid var(--border);border-radius:100px;display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;cursor:pointer" onclick="afOpenChat('I need a new stroller for my trip to Adventure Kingdom')">
-      <svg width="18" height="18" fill="none"><path d="M9 1l1.5 4.5L15 7l-4.5 1.5L9 13l-1.5-4.5L3 7l4.5-1.5z" fill="#9090ae"/></svg>
-      Get ready for your Orlando trip
-    </div>
-
-    <!-- Chips -->
-    <div style="display:flex;gap:8px;padding:0 20px 28px;overflow-x:auto;scrollbar-width:none">
-      <span class="ch" onclick="afOpenChat('Find park gear under $50/mo')">Park gear under $50/mo</span>
-      <span class="ch" onclick="afOpenChat('Interest-free fashion deals')">Interest-free fashion</span>
-      <span class="ch" onclick="afOpenChat('Can I afford all the gear?')">Can I afford it?</span>
-    </div>
-
-    <!-- Products section -->
-    <div style="margin:0 14px 20px;background:var(--surface);border-radius:20px;padding:20px 16px;border:1px solid var(--border)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div style="font-size:18px;font-weight:700">Adventure Kingdom needs</div>
-        <div style="font-size:14px;color:var(--tsec)">See all &rsaquo;</div>
-      </div>
-      <div style="display:flex;gap:12px;overflow-x:auto;scrollbar-width:none">
-        <div style="flex-shrink:0;width:155px;cursor:pointer" onclick="afOpenChat('Show me sunglasses')">
-          <div style="width:155px;height:120px;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:10px">
-            <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=300&fit=crop" style="width:100%;height:100%;object-fit:cover" alt="">
-          </div>
-          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Ray-Ban RB3025 Aviator</div>
-          <div style="font-size:13px;font-weight:600">As low as $34.50/mo</div>
-          <div style="font-size:13px;color:var(--tsec)">0% APR options</div>
-        </div>
-        <div style="flex-shrink:0;width:155px;cursor:pointer" onclick="afOpenChat('Show me coolers')">
-          <div style="width:155px;height:120px;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:10px">
-            <img src="https://images.unsplash.com/photo-1622260614153-03223fb72052?w=400&h=300&fit=crop" style="width:100%;height:100%;object-fit:cover" alt="">
-          </div>
-          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Yeti Tundra 45 Cooler</div>
-          <div style="font-size:13px;font-weight:600">As low as $54.50/mo</div>
-          <div style="font-size:13px;color:var(--tsec)">0% APR options</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab bar -->
-    <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:84px;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px;z-index:5">
-      <div class="tb on"><div class="tb-ic"><svg width="24" height="24" fill="white"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg></div><span class="tb-lb" style="color:white">Home</span></div>
-      <div class="tb"><div class="tb-ic"><svg width="24" height="24" fill="none" stroke="#5c5c78" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke-linejoin="round"/><circle cx="7" cy="7" r="1" fill="#5c5c78"/></svg></div><span class="tb-lb">Deals</span></div>
-      <div class="tb"><div class="tb-ic"><svg width="24" height="24" fill="none" stroke="#5c5c78" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><span class="tb-lb">Card</span></div>
-      <div class="tb"><div class="tb-ic"><svg width="24" height="24" fill="none" stroke="#5c5c78" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></div><span class="tb-lb">Plans</span></div>
-      <div class="tb"><div class="tb-ic"><svg width="24" height="24" fill="none" stroke="#5c5c78" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><span class="tb-lb">Money</span></div>
-    </div>
-  </div>
-
-  <!-- App chat (slides over) -->
-  <div id="af-chat-screen" class="af-chat-scr go-r" style="transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s">
-    <div style="height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-size:16px;font-weight:600">
-      <span>9:41</span><span style="font-size:12px">5G</span>
-    </div>
-    <div style="padding:0 16px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)">
-      <div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:10px" onclick="afCloseChat()">
-        <svg width="10" height="18" fill="none"><path d="M9 1L1 9l8 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div>
-        <div style="font-size:17px;font-weight:700">Affirm Intelligence</div>
-        <div style="font-size:11px;color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px"><svg width="6" height="6"><circle cx="3" cy="3" r="3" fill="#00d68f"/></svg> Online</div>
-      </div>
-    </div>
-    <div class="af-chat-msgs" id="af-chat"></div>
-    <div style="padding:12px 16px 36px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;background:var(--bg)">
-      <input id="af-input" placeholder="Type your message here" onkeydown="if(event.key==='Enter')afSend()" style="flex:1;padding:13px 18px;background:var(--surface);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:14px;font-family:inherit;outline:none">
-      <button onclick="afSend()" style="width:42px;height:42px;background:var(--indigo);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;flex-shrink:0">
-        <svg width="18" height="18" fill="none"><path d="M2 9h14M10 3l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </div>
-  </div>
+<!-- SCENE 3: AFFIRM APP (iframe of working index.html) -->
+<div class="scene" id="s3" style="padding-top:0">
+  <iframe id="af-frame" src="index.html#skipgate" style="width:100%;height:calc(100vh - 56px);border:none;margin-top:-16px"></iframe>
 </div>
 
 </div>
@@ -377,7 +257,6 @@ function confirmCurrent(){
   cs();
   if(currentCheckoutScene==='priceline'){confirmPriceline();}
   else if(currentCheckoutScene==='gemini'){confirmGemini();}
-  else if(currentCheckoutScene==='affirm'){confirmAffirm();}
 }
 
 // ─── SCENE 1: PRICELINE ───
@@ -498,167 +377,8 @@ async function confirmGemini(){
 }
 function gmNav(){showScene(3);}
 
-// ─── SCENE 3: AFFIRM APP ───
-function initScene3(){
-  document.getElementById('af-pp-val').textContent='$'+ppVal.toLocaleString();
-  document.getElementById('af-passes-chip').style.display='';
-  document.getElementById('af-trip-sub').textContent='4 items planned \u00b7 2 booked';
-}
-
-function afOpenChat(t){
-  const el=document.getElementById('af-chat-screen');
-  el.classList.remove('go-r');
-  document.body.style.overflow='hidden';
-  if(!document.getElementById('af-chat').children.length){
-    setTimeout(()=>{addTo('af-chat',t,'bub me');afRespond(t);},300);
-  } else {
-    addTo('af-chat',t,'bub me');afRespond(t);
-  }
-}
-function afCloseChat(){
-  document.getElementById('af-chat-screen').classList.add('go-r');
-  document.body.style.overflow='';
-}
-
-async function afRespond(t){
-  const c='af-chat',lo=t.toLowerCase();
-  dotsIn(c,'af-style');await D(900);dotsOut(c);
-
-  if(lo.includes('stroller')||lo.includes('orlando')||lo.includes('adventure')||lo.includes('trip')){
-    addTo(c,"Hi Amanda\u2014I found some great budget-friendly strollers with 0% APR for your park trip:",'bub bot');
-    await D(500);
-    const r=document.createElement('div');r.className='gm-results';
-    r.innerHTML=`
-      <div class="gm-result" onclick="afCheckout('Zoe Traveler: Compact',349,29)">
-        <div class="gm-result-top"><span class="gm-result-name">Zoe Traveler: Compact</span><span class="gm-result-price">$349</span></div>
-        <div class="gm-result-desc">$529 \u00b7 Zoe Baby. 13 lbs, one-hand fold. Perfect for flights and parks.</div>
-        <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">$29/mo at 0% APR</span></div>
-      </div>
-      <div class="gm-result" onclick="afCheckout('Mompush Lithe V2',359,24)">
-        <div class="gm-result-top"><span class="gm-result-name">Mompush Lithe V2</span><span class="gm-result-price">$359</span></div>
-        <div class="gm-result-desc">$359 \u00b7 Mompush. Lightweight, large canopy, smooth ride.</div>
-        <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">$24/mo at 0% APR</span></div>
-      </div>
-      <div class="gm-result" onclick="afCheckout('Zoe Twin V2: Lightweight',529,48)">
-        <div class="gm-result-top"><span class="gm-result-name">Zoe Twin V2: Lightweight</span><span class="gm-result-price">$529</span></div>
-        <div class="gm-result-desc">$529 \u00b7 Zoe Baby. Double stroller, 19 lbs, fits through park gates.</div>
-        <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">$48/mo at 0% APR</span></div>
-      </div>
-      <div class="gm-result" onclick="afCheckout('Nuna TRVL Stroller',590,50)">
-        <div class="gm-result-top"><span class="gm-result-name">Nuna TRVL dubi Stroller</span><span class="gm-result-price">$590</span></div>
-        <div class="gm-result-desc">$590 \u00b7 Pottery Barn Kids. Premium ride, compact fold, full canopy.</div>
-        <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">$50/mo at 0% APR</span></div>
-      </div>`;
-    document.getElementById(c).appendChild(r);document.getElementById(c).scrollTop=99999;
-    await D(400);
-    addTo(c,"If you\u2019re looking for a specific type\u2014like a double\u2014I can find that too.",'bub bot');
-    await D(300);
-    afPills(["Double","Lightweight","Under $400","Can I afford it?"]);
-  } else if(lo.includes('afford')||lo.includes('budget')||lo.includes('financial')||lo.includes('summary')){
-    addTo(c,`Let me check your finances, Amanda.\n\n<strong>Purchasing power:</strong> $${ppVal.toLocaleString()}\n<strong>Active loans:</strong> 2 ($89/mo total)\n<strong>Booked for trip:</strong>\n\u2022 Flights + Hotel: $154/mo\n\u2022 Day Passes: $99/mo\n<strong>Monthly total so far:</strong> $253/mo\n\n<strong>Remaining power:</strong> $${ppVal.toLocaleString()}\n\nYou can comfortably add a stroller ($29\u2013$50/mo) and still have room for park gear. <strong>Total would be ~$303/mo\u2014well within budget.</strong>`,'bub bot');
-    await D(300);
-    afPills(["Show me strollers","Park gear under $50/mo","Sunglasses"]);
-  } else if(lo.includes('double')||lo.includes('twin')){
-    addTo(c,"Here are the top-rated double strollers among park visitors\u2014all under $900 with 0% APR:",'bub bot');
-    await D(500);
-    const r=document.createElement('div');r.className='gm-results';
-    r.innerHTML=`
-      <div class="gm-result" onclick="afCheckout('Zoe Twin V2',529,48)">
-        <div class="gm-result-top"><span class="gm-result-name">Zoe Twin V2: Lightweight</span><span class="gm-result-price">$529</span></div>
-        <div class="gm-result-desc">19 lbs, lightest double. Fits through gates easily.</div>
-        <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">$48/mo at 0% APR</span></div>
-      </div>
-      <div class="gm-result" onclick="afCheckout('Baby Jogger City Mini',399,33)">
-        <div class="gm-result-top"><span class="gm-result-name">Baby Jogger City Mini GT2</span><span class="gm-result-price">$399</span></div>
-        <div class="gm-result-desc">All-terrain wheels, one-hand fold. Great for parks and city.</div>
-        <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">$33/mo at 0% APR</span></div>
-      </div>`;
-    document.getElementById(c).appendChild(r);document.getElementById(c).scrollTop=99999;
-    await D(300);
-    addTo(c,"The Zoe Twin is the lightest at 19 lbs. The Baby Jogger has all-terrain wheels for rougher park paths.",'bub bot');
-  } else if(lo.includes('sunglass')||lo.includes('shades')){
-    addTo(c,"Here are sunglasses options\u2014a mix of styles and prices, all within your purchasing power:",'bub bot');
-    await D(500);
-    const r=document.createElement('div');r.className='gm-results';
-    r.innerHTML=`
-      <div class="gm-result" onclick="afCheckout('Ray-Ban Aviator Classic',207,34)">
-        <div class="gm-result-top"><span class="gm-result-name">Ray-Ban Aviator Classic</span><span class="gm-result-price">$207</span></div>
-        <div class="gm-result-desc">The classic. Polarized lenses, gold frame.</div>
-        <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">$34/mo at 0% APR</span></div>
-      </div>
-      <div class="gm-result" onclick="afCheckout('Goodr OG Sunglasses',25,0)">
-        <div class="gm-result-top"><span class="gm-result-name">Goodr OG Sunglasses</span><span class="gm-result-price">$25</span></div>
-        <div class="gm-result-desc">No-slip, no-bounce. Perfect park day shades you won't cry over losing.</div>
-        <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">Pay now \u00b7 $25</span></div>
-      </div>`;
-    document.getElementById(c).appendChild(r);document.getElementById(c).scrollTop=99999;
-    await D(300);
-    addTo(c,"The Goodr is $25\u2014perfect for a park day where they might get lost. The Ray-Bans are a classic investment.",'bub bot');
-  } else if(lo.includes('cooler')){
-    addTo(c,"Great choice for the park! Here are coolers that fit your budget:",'bub bot');
-    await D(500);
-    const r=document.createElement('div');r.className='gm-results';
-    r.innerHTML=`
-      <div class="gm-result" onclick="afCheckout('Yeti Tundra 45',325,54)">
-        <div class="gm-result-top"><span class="gm-result-name">Yeti Tundra 45</span><span class="gm-result-price">$325</span></div>
-        <div class="gm-result-desc">Keeps ice 5+ days. Bearproof. The gold standard.</div>
-        <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">$54/mo at 0% APR</span></div>
-      </div>
-      <div class="gm-result" onclick="afCheckout('Coleman 316 Series',55,0)">
-        <div class="gm-result-top"><span class="gm-result-name">Coleman 316 Series</span><span class="gm-result-price">$55</span></div>
-        <div class="gm-result-desc">Budget pick. 52 quart, keeps ice 5 days. Just pay now.</div>
-        <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">Pay now \u00b7 $55</span></div>
-      </div>`;
-    document.getElementById(c).appendChild(r);document.getElementById(c).scrollTop=99999;
-  } else if(lo.includes('everything')||lo.includes('all for now')||lo.includes("that's it")){
-    addTo(c,"You're all set, Amanda! Your Orlando trip is looking great. Have an amazing time at Adventure Kingdom! \u2728",'bub bot');
-  } else {
-    addTo(c,"I can help you find deals across 220K+ merchants, check what you can afford, or plan your trip purchases. What are you looking for?",'bub bot');
-    await D(300);
-    afPills(["Strollers for the park","Can I afford all the gear?","Sunglasses","Coolers"]);
-  }
-}
-
-function afPills(items){
-  const d=document.createElement('div');d.className='pill-row';
-  d.innerHTML=items.map(t=>`<span class="pill-btn" onclick="afTapPill('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('');
-  document.getElementById('af-chat').appendChild(d);
-  document.getElementById('af-chat').scrollTop=99999;
-}
-function afTapPill(t){
-  document.querySelectorAll('#af-chat .pill-row').forEach((e,i,a)=>{if(i===a.length-1)e.remove();});
-  addTo('af-chat',t,'bub me');
-  afRespond(t);
-}
-function afSend(){
-  const v=document.getElementById('af-input').value.trim();
-  if(!v)return;
-  document.getElementById('af-input').value='';
-  addTo('af-chat',v,'bub me');
-  afRespond(v);
-}
-function afCheckout(name,price,mo){
-  currentCheckoutScene='affirm';
-  openSheet(name,price,mo);
-}
-async function confirmAffirm(){
-  const price=parseInt(document.getElementById('sP').textContent.replace(/\$/g,'').replace(/,/g,''));
-  ppVal-=price;
-  document.getElementById('af-pp-val').textContent='$'+ppVal.toLocaleString();
-  document.getElementById('af-stroller-chip').textContent='\u2713 Stroller';
-  document.getElementById('af-stroller-chip').classList.add('done');
-  document.getElementById('af-trip-sub').textContent='4 items planned \u00b7 3 booked';
-  await D(500);
-  const c='af-chat';
-  const s=document.createElement('div');s.className='suc';
-  s.innerHTML=`<div class="suc-t">&#10003; Purchase confirmed!</div><div class="suc-b">Arriving before your trip. Your purchasing power is now <strong>$${ppVal.toLocaleString()}</strong>.<br><br>Your Orlando trip:\u2713 Flights + Hotel \u2713 Day Passes \u2713 Stroller</div>`;
-  document.getElementById(c).appendChild(s);
-  document.getElementById(c).scrollTop=99999;
-  await D(400);
-  addTo(c,"Your trip is almost fully planned! Want to add anything else\u2014sunglasses, a cooler? All available with 0% APR.",'bub bot');
-  await D(300);
-  afPills(["Sunglasses","Cooler for the park","That's everything!"]);
-}
+// ─── SCENE 3: AFFIRM APP (loaded via iframe, no JS needed here) ───
+function initScene3(){}
 </script>
 </body>
 </html>
