@@ -326,8 +326,9 @@ function openSheet(name,price,mo){
 }
 function cs(){document.getElementById('ov').classList.remove('on');document.getElementById('sh').classList.remove('on');}
 
-function confirmCurrent(){
+async function confirmCurrent(){
   cs();
+  await D(400);
   if(currentCheckoutScene==='priceline'){confirmPriceline();}
   else if(currentCheckoutScene==='gemini'){confirmGemini();}
 }
@@ -587,7 +588,7 @@ async function confirmGemini(){
   const price=parseInt(document.getElementById('sP').textContent.replace(/\$/g,'').replace(/,/g,''));
   ppVal-=price;
   launchConfetti();
-  await D(500);
+  await D(300);
   const c='gm-chat';
   const s=document.createElement('div');s.className='suc';
   s.innerHTML=`<div class="suc-t">&#10003; Passes purchased!</div><div class="suc-b">Your Adventure Kingdom passes are confirmed! Check your email for the QR codes.<br><br>Remaining purchasing power: <strong>$${ppVal.toLocaleString()}</strong></div>`;
