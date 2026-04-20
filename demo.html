@@ -306,13 +306,8 @@ function showScene(n){
 // ─── HELPERS ───
 function scrollChat(cid){
   setTimeout(()=>{
-    const el=document.getElementById(cid);
-    if(!el)return;
-    const last=el.lastElementChild;
-    if(last){
-      window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
-      last.scrollIntoView({behavior:'smooth',block:'end'});
-    }
+    window.scrollTo({top:document.body.scrollHeight+500,behavior:'smooth'});
+    setTimeout(()=>window.scrollTo({top:document.body.scrollHeight+500,behavior:'smooth'}),300);
   },100);
 }
 function addTo(cid,html,cls){const d=document.createElement('div');d.className=cls;d.innerHTML=html;document.getElementById(cid).appendChild(d);scrollChat(cid);}
