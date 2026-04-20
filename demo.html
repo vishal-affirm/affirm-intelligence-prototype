@@ -250,7 +250,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
   </div>
   <div class="congrats-affirm">
     <span class="congrats-affirm-logo">affirm</span>
-    <div><span class="congrats-affirm-amt" id="congrats-plan"></span><br><span style="font-size:12px;color:var(--tsec)">0% APR &middot; No fees</span></div>
+    <div><span class="congrats-affirm-amt" id="congrats-plan"></span><br><span id="congrats-apr" style="font-size:12px;color:var(--tsec)">0% APR &middot; No fees</span></div>
   </div>
   <div class="congrats-pp">Remaining purchasing power: <strong id="congrats-pp-val"></strong></div>
   <button class="congrats-btn" onclick="closeCongrats()">Continue to plan your trip &rarr;</button>
@@ -463,10 +463,12 @@ async function plPickHotel(hotel,idx){
     {name:"Orlando Premium Experience",hotel:"JW Marriott Grande Lakes",price:2690}
   ];
   const pkg=pkgData[idx];
+  const p=pkg.price;
   const terms=[
-    {months:6,mo:Math.ceil(pkg.price/6),label:"6 months"},
-    {months:12,mo:Math.ceil(pkg.price/12),label:"12 months"},
-    {months:24,mo:Math.ceil(pkg.price/24),label:"24 months"}
+    {months:6,mo:Math.ceil(p/6),apr:"0%",int:0,label:"6 months",tag:"0% APR",tagColor:"#00d68f"},
+    {months:12,mo:Math.ceil(p/12),apr:"0%",int:0,label:"12 months",tag:"0% APR",tagColor:"#00d68f"},
+    {months:18,mo:Math.ceil((p*1.08)/18),apr:"10.36%",int:Math.ceil(p*0.08),label:"18 months",tag:"Low APR",tagColor:"#d97706"},
+    {months:36,mo:Math.ceil((p*1.20)/36),apr:"17.99%",int:Math.ceil(p*0.20),label:"36 months",tag:"Longest term",tagColor:"var(--tsec)"}
   ];
 
   addTo(c,"Here\u2019s your personalized package at "+hotel+":",'pl-msg bot');
@@ -479,32 +481,33 @@ async function plPickHotel(hotel,idx){
     <div class="pl-deal-row"><span class="pl-deal-label">Hotel</span><span>${pkg.hotel}, 5 nights</span></div>
     <div class="pl-deal-row"><span class="pl-deal-label">Dates</span><span>${plChosenDates}</span></div>
     <div class="pl-deal-row"><span class="pl-deal-label">Guests</span><span>2 adults + 3 kids</span></div>
-    <div class="pl-deal-row" style="border:none"><span class="pl-deal-label">Total</span><span style="font-weight:700;font-size:18px">$${pkg.price.toLocaleString()}</span></div>
+    <div class="pl-deal-row" style="border:none"><span class="pl-deal-label">Total</span><span style="font-weight:700;font-size:18px">$${p.toLocaleString()}</span></div>
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
       <div class="pl-affirm-badge" style="margin-bottom:10px">
         <span class="pl-affirm-logo">affirm</span>
-        <span class="pl-affirm-tag">PRE-APPROVED &middot; 0% APR</span>
+        <span class="pl-affirm-tag">PRE-APPROVED</span>
       </div>
       <div style="font-size:13px;color:var(--tsec);margin-bottom:10px">Choose your payment plan:</div>
       ${terms.map((t,ti)=>`
-        <div class="pl-term${ti===1?' pl-term-pop':''}" onclick="plSelectTerm(${pkg.price},${t.mo},${t.months},'${pkg.name.replace(/'/g,"\\'")}')">
+        <div class="pl-term${ti===1?' pl-term-pop':''}" onclick="plSelectTerm(${p},${t.mo},${t.months},'${pkg.name.replace(/'/g,"\\'")}','${t.apr}')">
           <div style="flex:1">
             <div style="font-weight:700;font-size:15px">$${t.mo}/mo</div>
-            <div style="font-size:11px;color:var(--tsec)">${t.label} &middot; 0% APR &middot; $0 down</div>
+            <div style="font-size:11px;color:var(--tsec)">${t.label} &middot; ${t.apr} APR${t.int>0?' &middot; $'+t.int.toLocaleString()+' interest':' &middot; $0 interest'}</div>
           </div>
-          ${ti===1?'<span style="font-size:9px;background:var(--priceline-blue);padding:3px 8px;border-radius:4px;font-weight:700">POPULAR</span>':''}
+          <span style="font-size:9px;background:${ti===1?'var(--priceline-blue)':'rgba(255,255,255,.06)'};padding:3px 8px;border-radius:4px;font-weight:700;color:${t.tagColor}">${ti===1?'BEST VALUE':t.tag}</span>
         </div>`).join('')}
     </div>`;
   document.getElementById(c).appendChild(d);
   scrollChat(c);
   await D(300);
-  addTo(c,"You\u2019re pre-approved for all three plans! Pick the monthly payment that works best for your family.",'pl-msg bot');
+  addTo(c,"The 6 and 12 month plans are 0% interest\u2014you pay exactly $"+p.toLocaleString()+". The 18 and 36 month plans have interest but lower monthly payments. Pick the one that works best for your family.",'pl-msg bot');
 }
 
-function plSelectTerm(price,mo,months,name){
-  selectedPkg={name,price,mo,months};
+function plSelectTerm(price,mo,months,name,apr){
+  selectedPkg={name,price,mo,months,apr};
   ppVal-=price;
   document.getElementById('congrats-plan').textContent='$'+mo+'/mo for '+months+' months';
+  document.getElementById('congrats-apr').textContent=apr==='0%'?'0% APR \u00b7 No fees':apr+' APR \u00b7 No late fees';
   document.getElementById('congrats-pp-val').textContent='$'+ppVal.toLocaleString();
   launchConfetti();
   document.getElementById('congratsOv').classList.add('on');
