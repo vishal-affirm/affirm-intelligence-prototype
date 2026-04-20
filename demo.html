@@ -586,18 +586,30 @@ function gmSelect(name,price,mo){
 }
 async function confirmGemini(){
   const price=parseInt(document.getElementById('sP').textContent.replace(/\$/g,'').replace(/,/g,''));
+  const mo=parseInt(document.getElementById('sPl').textContent.replace(/[^0-9]/g,''));
   ppVal-=price;
   launchConfetti();
-  await D(300);
+  document.getElementById('congrats-plan').textContent='$'+mo+'/mo for '+Math.ceil(price/mo)+' months';
+  document.getElementById('congrats-pp-val').textContent='$'+ppVal.toLocaleString();
+  document.querySelector('.congrats-title').textContent='Congratulations, Amanda!';
+  document.querySelector('.congrats-body').textContent='Your Adventure Kingdom passes are confirmed!';
+  document.querySelector('.congrats-details').innerHTML=`
+    <div class="congrats-row"><span>Passes</span><span>5-Day Family Pass (x4)</span></div>
+    <div class="congrats-row"><span>Park</span><span>Adventure Kingdom, Orlando</span></div>
+    <div class="congrats-row"><span>Dates</span><span>Jul 12 &ndash; Jul 17, 2026</span></div>
+    <div class="congrats-row" style="border:none"><span>Guests</span><span>2 adults + 3 kids</span></div>`;
+  document.querySelector('.congrats-btn').textContent='Continue planning your trip \u2192';
+  document.querySelector('.congrats-btn').onclick=closeCongratsGemini;
+  document.getElementById('congratsOv').classList.add('on');
+  document.getElementById('congratsModal').classList.add('on');
+}
+
+function closeCongratsGemini(){
+  document.getElementById('congratsOv').classList.remove('on');
+  document.getElementById('congratsModal').classList.remove('on');
   const c='gm-chat';
-  const s=document.createElement('div');s.className='suc';
-  s.innerHTML=`<div class="suc-t">&#10003; Passes purchased!</div><div class="suc-b">Your Adventure Kingdom passes are confirmed! Check your email for the QR codes.<br><br>Remaining purchasing power: <strong>$${ppVal.toLocaleString()}</strong></div>`;
-  document.getElementById(c).appendChild(s);
-  scrollChat(c);
-  await D(400);
-  addTo(c,"Your passes are set! Now you might want to check the Affirm app for trip gear\u2014strollers, coolers, sunglasses\u2014all with 0% financing and personalized recommendations.",'gm-msg bot');
-  await D(300);
-  pillsTo(c,["Open Affirm app"],'gm-style','gmNav');
+  addTo(c,"Your passes are set! Now check the Affirm app for trip gear\u2014strollers, coolers, sunglasses\u2014all with 0% financing.",'gm-msg bot');
+  setTimeout(()=>pillsTo(c,["Open Affirm app"],'gm-style','gmNav'),300);
 }
 function gmNav(){showScene(3);}
 
