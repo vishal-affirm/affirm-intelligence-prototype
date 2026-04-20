@@ -304,7 +304,14 @@ function showScene(n){
 }
 
 // ─── HELPERS ───
-function scrollChat(cid){const el=document.getElementById(cid);setTimeout(()=>el.scrollTo({top:el.scrollHeight,behavior:'smooth'}),50);}
+function scrollChat(cid){
+  const el=document.getElementById(cid);
+  setTimeout(()=>{
+    el.scrollTo({top:el.scrollHeight,behavior:'smooth'});
+    const last=el.lastElementChild;
+    if(last)last.scrollIntoView({behavior:'smooth',block:'end'});
+  },80);
+}
 function addTo(cid,html,cls){const d=document.createElement('div');d.className=cls;d.innerHTML=html;document.getElementById(cid).appendChild(d);scrollChat(cid);}
 function dotsIn(cid,style){const d=document.createElement('div');d.className='dots-a '+style;d.id='dots-'+cid;d.innerHTML='<div class="da"></div><div class="da"></div><div class="da"></div>';document.getElementById(cid).appendChild(d);scrollChat(cid);}
 function dotsOut(cid){const d=document.getElementById('dots-'+cid);if(d)d.remove();}
@@ -570,7 +577,7 @@ async function initScene2(){
       <div class="gm-affirm"><span class="gm-affirm-logo">affirm</span><span class="gm-affirm-text">As low as $112/mo at 0% APR</span></div>
     </div>`;
   document.getElementById(c).appendChild(r);
-  document.getElementById(c).scrollTop=99999;
+  scrollChat(c);
   await D(400);
   addTo(c,"All three options include Affirm financing at 0% APR. Based on your Affirm purchasing power, you're pre-approved for any of these. The Base Pass gives you the most days for the lowest monthly payment.",'gm-msg bot');
 }
@@ -586,7 +593,7 @@ async function confirmGemini(){
   const s=document.createElement('div');s.className='suc';
   s.innerHTML=`<div class="suc-t">&#10003; Passes purchased!</div><div class="suc-b">Your Adventure Kingdom passes are confirmed. Check your email for the QR codes.<br><br>Affirm purchasing power: <strong>$${ppVal.toLocaleString()}</strong></div>`;
   document.getElementById(c).appendChild(s);
-  document.getElementById(c).scrollTop=99999;
+  scrollChat(c);
   await D(400);
   addTo(c,"Your passes are set! Now you might want to check the Affirm app for trip gear\u2014strollers, coolers, sunglasses\u2014all with 0% financing and personalized recommendations.",'gm-msg bot');
   await D(300);
