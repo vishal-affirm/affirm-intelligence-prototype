@@ -636,11 +636,21 @@ const fl={
   doubles:{hi:"Here are the top-rated double strollers among park visitors\u2014all under $900 with 0% APR.",it:cat.doubles,then:"The Zoe Twin is the lightest at 19 lbs. The UPPAbaby is premium but the best ride quality.",pl:["Compare top 2","Which fits a car trunk?","Best for newborn + toddler"]},
   sunglasses:{hi:"Here are sunglasses options\u2014a mix of styles and prices, all within your purchasing power.",it:cat.sunglasses,then:"The Goodr is $25\u2014perfect for a park day. The Ray-Bans are a classic investment.",pl:["Polarized only","Under $50","Sport style"]},
   coolers:{hi:"Great choice for the park! Here are coolers that fit your budget.",it:cat.coolers,then:"The Coleman is $55\u2014pay now, no plan needed. The Yeti keeps ice 5+ days.",pl:["Biggest capacity","Under $100","With wheels"]},
-  afford:{hi:null,pl:["Show me options under $600","What about $800?","My payment schedule"]},
-  welcome:{hi:"Hi Amanda! I\u2019m your Affirm Intelligence assistant. I can help you find the best deals across 220K+ merchants, check what you can afford, or plan your next purchase. What\u2019s on your mind?",pl:["Get ready for Orlando trip","What can I afford?","Show me 0% deals","My financial summary"]}
+  welcome:{hi:"Hi Amanda! I\u2019m your Affirm Intelligence assistant. I can help you find the best deals across 220K+ merchants, check what you can afford, or plan your next purchase. What\u2019s on your mind?",pl:["Get ready for Orlando trip","What all can I afford?","My financial summary","My payment schedule"]}
 };
 
-function intent(t){const l=t.toLowerCase();if(l.includes('double')||l.includes('twin'))return'doubles';if(l.includes('stroller')||l.includes('orlando')||l.includes('adventure')||l.includes('trip')||l.includes('park gear'))return'strollers';if(l.includes('sunglass')||l.includes('ray-ban')||l.includes('shades'))return'sunglasses';if(l.includes('cooler')||l.includes('yeti'))return'coolers';if(l.includes('afford')||l.includes('can i')||l.includes('budget')||l.includes('financial')||l.includes('summary'))return'afford';return'welcome';}
+function intent(t){const l=t.toLowerCase();
+  if(l.includes('double')||l.includes('twin'))return'doubles';
+  if(l.includes('stroller')||l.includes('orlando')||l.includes('adventure')||l.includes('trip')||l.includes('park gear'))return'strollers';
+  if(l.includes('sunglass')||l.includes('ray-ban')||l.includes('shades'))return'sunglasses';
+  if(l.includes('cooler')||l.includes('yeti'))return'coolers';
+  if(l.includes('what all')||l.includes('what can i afford')||l.includes('what fits'))return'afford_all';
+  if(l.includes('payment schedule')||l.includes('upcoming payment')||l.includes('my payments')||l.includes('when is my'))return'payments';
+  if(l.includes('afford')||l.includes('can i')||l.includes('budget'))return'afford';
+  if(l.includes('financial')||l.includes('summary')||l.includes('overview')||l.includes('snapshot'))return'financial';
+  if(l.includes('save')||l.includes('spend less')||l.includes('cut')||l.includes('reduce'))return'save_tips';
+  return'welcome';
+}
 
 function ab(h,c){const d=document.createElement('div');d.className='bub '+c;d.innerHTML=h;MS.appendChild(d);MS.scrollTop=MS.scrollHeight;}
 function ap(items){const w=document.createElement('div');w.className='pw';w.innerHTML='<div class="pg">'+items.map(i=>'<div class="pc" onclick=\'os('+JSON.stringify(i).replace(/'/g,"&#39;")+')\''+'><div class="pc-im"><img src="'+i.img+'" alt=""></div><div class="pc-bd"><div class="pc-nm">'+i.n+'</div><div class="pc-mt">$'+i.p+' &middot; '+i.m+'</div><div class="pc-ap">'+(i.mo>0?'$'+i.mo+'/mo &middot; ':'')+i.apr+'</div></div></div>').join('')+'</div>';MS.appendChild(w);MS.scrollTop=MS.scrollHeight;}
@@ -648,9 +658,135 @@ function apl(arr){const w=document.createElement('div');w.className='pls';w.inne
 function sd(){const d=document.createElement('div');d.className='dots-w';d.id='typ';d.innerHTML='<div class="dt"></div><div class="dt"></div><div class="dt"></div>';MS.appendChild(d);MS.scrollTop=MS.scrollHeight;}
 function hd(){const d=document.getElementById('typ');if(d)d.remove();}
 
-async function resp(t){const k=intent(t),f=fl[k]||fl.welcome;sd();await w(900);hd();
-  const msg=f.hi||"Let me check your finances, Amanda.\n\n<strong>Purchasing power:</strong> $"+ppVal.toLocaleString()+"\n<strong>Active loans:</strong> 2 ($89/mo total)\n<strong>Next payment:</strong> in 6 days\n\nA $600 stroller at 0% APR would add ~$50/mo for 12 months. That keeps you well within your monthly budget. <strong>You can afford it comfortably.</strong>";
-  ab(msg,'bot');if(f.it){await w(500);ap(f.it);if(f.then){await w(400);ab(f.then,'bot');}}if(f.pl){await w(300);apl(f.pl);}}
+async function resp(t){
+  const k=intent(t);
+
+  if(k==='afford_all'){
+    sd();await w(1000);hd();
+    const avail=ppVal;
+    const moUsed=89;
+    const moLeft=Math.floor(avail/12);
+    ab("Here\u2019s your complete financial picture, Amanda:",'bot');
+    await w(400);
+    const card=document.createElement('div');card.className='bub bot';card.style.maxWidth='92%';
+    card.innerHTML=`
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">YOUR AFFIRM SNAPSHOT</div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:var(--text-secondary)">Purchasing power</span><strong style="color:#00d68f">$${avail.toLocaleString()}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:var(--text-secondary)">Active loans</span><span>2 loans</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:var(--text-secondary)">Monthly obligations</span><span>$${moUsed}/mo</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:var(--text-secondary)">Next payment</span><span>Apr 22 ($45)</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0"><span style="color:var(--text-secondary)">Payment streak</span><span style="color:#00d68f">12 on time \u2713</span></div>
+      </div>
+      <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">WHAT FITS YOUR BUDGET</div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span>Stroller (Zoe Compact)</span><span style="color:#00d68f">$29/mo \u2713</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span>Cooler (Yeti Tundra)</span><span style="color:#00d68f">$54/mo \u2713</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span>Sunglasses (Ray-Ban)</span><span style="color:#00d68f">$34/mo \u2713</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span>iPad Air M3</span><span style="color:#00d68f">$52/mo \u2713</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0"><span>MacBook Pro</span><span style="color:#d97706">Tight \u2014 $166/mo</span></div>
+      <div style="margin-top:12px;padding:10px 14px;background:rgba(0,214,143,.08);border-radius:10px;border:1px solid rgba(0,214,143,.15);font-size:13px">
+        <strong style="color:#00d68f">Bottom line:</strong> You can comfortably add up to <strong>~$${moLeft}/mo</strong> in new payments and stay within your budget. All the trip gear fits easily.
+      </div>`;
+    MS.appendChild(card);MS.scrollTop=MS.scrollHeight;
+    await w(300);
+    apl(["Show me strollers","Shop park gear","My payment schedule","Tips to save"]);
+    return;
+  }
+
+  if(k==='financial'){
+    sd();await w(900);hd();
+    const card=document.createElement('div');card.className='bub bot';card.style.maxWidth='92%';
+    card.innerHTML=`
+      <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">FINANCIAL SUMMARY</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:rgba(74,74,244,.08);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:800;color:#00d68f">$${ppVal.toLocaleString()}</div>
+          <div style="font-size:11px;color:var(--text-secondary)">Purchasing Power</div>
+        </div>
+        <div style="background:rgba(74,74,244,.08);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:800">$89</div>
+          <div style="font-size:11px;color:var(--text-secondary)">Monthly Payments</div>
+        </div>
+        <div style="background:rgba(74,74,244,.08);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:800">2</div>
+          <div style="font-size:11px;color:var(--text-secondary)">Active Loans</div>
+        </div>
+        <div style="background:rgba(74,74,244,.08);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:800;color:#00d68f">12</div>
+          <div style="font-size:11px;color:var(--text-secondary)">On-Time Payments</div>
+        </div>
+      </div>
+      <div style="font-size:13px;line-height:1.6">You\u2019re in great shape, Amanda! Your on-time payment streak means your purchasing power keeps growing. You have plenty of room for your Orlando trip gear.</div>`;
+    MS.appendChild(card);MS.scrollTop=MS.scrollHeight;
+    await w(300);
+    apl(["What all can I afford?","My payment schedule","Show me 0% deals"]);
+    return;
+  }
+
+  if(k==='payments'){
+    sd();await w(900);hd();
+    const card=document.createElement('div');card.className='bub bot';card.style.maxWidth='92%';
+    card.innerHTML=`
+      <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">UPCOMING PAYMENTS</div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+        <div><strong>Wayfair Sofa</strong><div style="font-size:11px;color:var(--text-secondary)">5 of 12 payments</div></div>
+        <div style="text-align:right"><strong>$45.00</strong><div style="font-size:11px;color:var(--text-secondary)">Apr 22</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+        <div><strong>Apple Watch SE</strong><div style="font-size:11px;color:var(--text-secondary)">8 of 12 payments</div></div>
+        <div style="text-align:right"><strong>$44.00</strong><div style="font-size:11px;color:var(--text-secondary)">Apr 28</div></div>
+      </div>
+      <div style="padding:10px 0;display:flex;justify-content:space-between;font-size:14px">
+        <strong>Monthly total</strong><strong>$89.00</strong>
+      </div>
+      <div style="margin-top:8px;padding:10px 14px;background:rgba(74,74,244,.06);border-radius:10px;font-size:12px;color:var(--text-secondary)">
+        Both loans are on AutoPay. Wayfair completes in Jul 2026. Apple Watch completes in Sep 2026. After that your monthly obligations drop to $0.
+      </div>`;
+    MS.appendChild(card);MS.scrollTop=MS.scrollHeight;
+    await w(300);
+    apl(["What all can I afford?","Pay off Apple Watch early","Financial summary"]);
+    return;
+  }
+
+  if(k==='save_tips'){
+    sd();await w(900);hd();
+    ab("Here are some ways to maximize your purchasing power, Amanda:",'bot');
+    await w(400);
+    const card=document.createElement('div');card.className='bub bot';card.style.maxWidth='92%';
+    card.innerHTML=`
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+        <span style="font-size:18px">&#128176;</span>
+        <div><strong>Pay off Apple Watch early</strong><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Only $176 left. Paying it off frees up $44/mo and boosts your purchasing power by ~$500.</div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+        <span style="font-size:18px">&#127991;</span>
+        <div><strong>Shop 0% APR merchants</strong><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">1,000+ merchants offering 0% right now. Big Nothing Days coming May 15\u2014exclusive 0% offers on brands you love.</div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+        <span style="font-size:18px">&#128200;</span>
+        <div><strong>Keep your streak going</strong><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">12 on-time payments! Your purchasing power increases with every on-time payment. You\u2019re on track for a limit increase next month.</div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0">
+        <span style="font-size:18px">&#128722;</span>
+        <div><strong>Use the Affirm Card for everyday purchases</strong><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Set default terms to \u201cPay Now\u201d for small purchases. Builds your history without adding monthly payments.</div></div>
+      </div>`;
+    MS.appendChild(card);MS.scrollTop=MS.scrollHeight;
+    await w(300);
+    apl(["Pay off Apple Watch","What all can I afford?","Show me 0% deals"]);
+    return;
+  }
+
+  if(k==='afford'){
+    sd();await w(900);hd();
+    ab("Let me check your finances, Amanda.\n\n<strong>Purchasing power:</strong> $"+ppVal.toLocaleString()+"\n<strong>Active loans:</strong> 2 ($89/mo total)\n<strong>Next payment:</strong> in 6 days\n\nA $600 stroller at 0% APR would add ~$50/mo for 12 months. That keeps you well within your monthly budget. <strong>You can afford it comfortably.</strong>",'bot');
+    await w(300);
+    apl(["What all can I afford?","Show me strollers","My payment schedule"]);
+    return;
+  }
+
+  const f=fl[k]||fl.welcome;sd();await w(900);hd();
+  ab(f.hi,'bot');if(f.it){await w(500);ap(f.it);if(f.then){await w(400);ab(f.then,'bot');}}if(f.pl){await w(300);apl(f.pl);}
+}
 function send(){const t=IN.value.trim();if(!t)return;ab(t,'me');IN.value='';resp(t);}
 function tap(t){document.querySelectorAll('.pls').forEach((e,i,a)=>{if(i===a.length-1)e.remove();});ab(t,'me');resp(t);}
 
