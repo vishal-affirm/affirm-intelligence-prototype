@@ -142,6 +142,14 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:var(--te
 .suc-t{font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px}
 .suc-b{font-size:12px;line-height:1.5}
 
+/* Priceline selectable rows */
+.pl-dest{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,.04)}
+.pl-dest:last-child{border:none}
+.pl-dest:hover{background:rgba(5,70,182,.15)}
+.pl-dest>span:first-child{font-size:24px;width:36px;text-align:center;flex-shrink:0}
+.pl-dest>div{flex:1;min-width:0}
+.pl-dest>span:last-child{flex-shrink:0}
+
 /* Priceline input bar */
 .pl-input-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:12px 16px 32px;border-top:1px solid rgba(5,70,182,.2);display:flex;gap:10px;align-items:center;background:#0a1628;z-index:6}
 .pl-input{flex:1;padding:13px 18px;background:#0f1f3a;border:1px solid rgba(5,70,182,.3);border-radius:100px;color:var(--text);font-size:14px;font-family:inherit;outline:none}
@@ -311,9 +319,9 @@ function confirmCurrent(){
   else if(currentCheckoutScene==='gemini'){confirmGemini();}
 }
 
-// ─── SCENE 1: PRICELINE ───
+// ─── SCENE 1: PRICELINE (multi-step interactive) ───
 const plMsg="I'm looking for an affordable vacation with my three kids";
-let plTyped=false, selectedPkg=null;
+let plTyped=false, selectedPkg=null, plChosenDates='', plChosenHotel='';
 
 async function typeText(el,text,speed=45){
   el.removeAttribute('readonly');el.focus();
@@ -323,13 +331,12 @@ async function typeText(el,text,speed=45){
 async function initScene1(){
   const c='pl-chat';
   dotsIn(c,'pl-style');await D(800);dotsOut(c);
-  addTo(c,"Hi Amanda! I'm Penny, your Priceline travel assistant. I can help you find the perfect getaway for your family. What are you looking for?",'pl-msg bot');
+  addTo(c,"Hi Amanda! I\u2019m Penny, your Priceline travel assistant. I can help you find the perfect getaway for your family. What are you looking for?",'pl-msg bot');
   await D(600);
   if(!plTyped){
     plTyped=true;
-    const inp=document.getElementById('pl-input');
     await D(400);
-    await typeText(inp,plMsg);
+    await typeText(document.getElementById('pl-input'),plMsg);
     await D(500);
     plSend();
   }
@@ -337,57 +344,116 @@ async function initScene1(){
 
 async function plSend(){
   const inp=document.getElementById('pl-input');
-  const t=inp.value.trim();
-  if(!t)return;
+  const t=inp.value.trim();if(!t)return;
   inp.value='';inp.setAttribute('readonly','');
   addTo('pl-chat',t,'pl-msg user');
-  await plRespond(t);
+  await plStep1();
 }
 
-async function plRespond(t){
-  const c='pl-chat',lo=t.toLowerCase();
+// Step 1: Destination suggestions
+async function plStep1(){
+  const c='pl-chat';
+  dotsIn(c,'pl-style');await D(1000);dotsOut(c);
+  addTo(c,"A family trip with three kids\u2014how exciting! Let me find the best destinations for families. Where would you like to go?",'pl-msg bot');
+  await D(400);
+  const d=document.createElement('div');d.className='pl-deal';d.style.padding='12px';
+  d.innerHTML=`
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--tsec)">TOP FAMILY DESTINATIONS</div>
+    <div class="pl-dest" onclick="plPickDest('Orlando, FL')"><span>&#127965;</span><div><strong>Orlando, FL</strong><div style="font-size:11px;color:var(--tsec)">Theme parks, sunshine, endless fun</div></div><span style="color:var(--green);font-size:11px;font-weight:600">From $1,247</span></div>
+    <div class="pl-dest" onclick="plPickDest('Cancun, Mexico')"><span>&#127754;</span><div><strong>Cancun, Mexico</strong><div style="font-size:11px;color:var(--tsec)">All-inclusive resorts, beaches</div></div><span style="font-size:11px;color:var(--tsec)">From $1,890</span></div>
+    <div class="pl-dest" onclick="plPickDest('San Diego, CA')"><span>&#128011;</span><div><strong>San Diego, CA</strong><div style="font-size:11px;color:var(--tsec)">Zoo, beaches, LEGOLAND</div></div><span style="font-size:11px;color:var(--tsec)">From $1,560</span></div>`;
+  document.getElementById(c).appendChild(d);
+  document.getElementById(c).scrollTop=99999;
+}
+
+// Step 2: Dates
+async function plPickDest(dest){
+  const c='pl-chat';
+  addTo(c,dest,'pl-msg user');
+  dotsIn(c,'pl-style');await D(800);dotsOut(c);
+  addTo(c,"Great choice! Orlando is our #1 family destination. When are you thinking of going?",'pl-msg bot');
+  await D(400);
+  const d=document.createElement('div');d.className='pl-deal';d.style.padding='12px';
+  d.innerHTML=`
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--tsec)">SUGGESTED DATES</div>
+    <div class="pl-dest" onclick="plPickDates('Jul 12 \u2013 Jul 17','5 nights')"><span>&#9728;&#65039;</span><div><strong>Jul 12 \u2013 Jul 17</strong><div style="font-size:11px;color:var(--tsec)">5 nights &middot; Summer break</div></div><span style="color:var(--green);font-size:11px;font-weight:600">Best prices</span></div>
+    <div class="pl-dest" onclick="plPickDates('Jul 19 \u2013 Jul 26','7 nights')"><span>&#9728;&#65039;</span><div><strong>Jul 19 \u2013 Jul 26</strong><div style="font-size:11px;color:var(--tsec)">7 nights &middot; Extended stay</div></div><span style="font-size:11px;color:var(--tsec)">+15% more</span></div>
+    <div class="pl-dest" onclick="plPickDates('Aug 2 \u2013 Aug 7','5 nights')"><span>&#9728;&#65039;</span><div><strong>Aug 2 \u2013 Aug 7</strong><div style="font-size:11px;color:var(--tsec)">5 nights &middot; Late summer</div></div><span style="font-size:11px;color:var(--tsec)">Similar price</span></div>`;
+  document.getElementById(c).appendChild(d);
+  document.getElementById(c).scrollTop=99999;
+}
+
+// Step 3: Hotels
+async function plPickDates(dates,nights){
+  plChosenDates=dates;
+  const c='pl-chat';
+  addTo(c,dates+' ('+nights+')','pl-msg user');
+  dotsIn(c,'pl-style');await D(1000);dotsOut(c);
+  addTo(c,"Perfect dates! I found 3 family-friendly hotels in Orlando for "+dates+". All are near the parks:",'pl-msg bot');
+  await D(400);
+  const hotels=[
+    {name:"Holiday Inn Resort Orlando",stars:3,rating:"4.2",reviews:"2,847",price:"$178/nt",img:"&#127960;",tag:"Best Value"},
+    {name:"Hilton Orlando Buena Vista",stars:4,rating:"4.5",reviews:"4,120",price:"$264/nt",img:"&#127963;",tag:"Most Popular"},
+    {name:"JW Marriott Grande Lakes",stars:5,rating:"4.8",reviews:"3,560",price:"$432/nt",img:"&#127751;",tag:"Premium"}
+  ];
+  hotels.forEach((h,i)=>{
+    const d=document.createElement('div');d.className='pl-deal';d.style.padding='14px';d.style.cursor='pointer';
+    d.onclick=()=>plPickHotel(h.name,i);
+    d.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:10px;background:${h.tag==='Most Popular'?'var(--priceline-blue)':'rgba(255,255,255,.08)'};padding:3px 8px;border-radius:4px;font-weight:600">${h.tag}</span>
+        <span style="font-size:12px">${'&#11088;'.repeat(h.stars)}</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="font-size:32px;width:50px;text-align:center">${h.img}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px;margin-bottom:2px">${h.name}</div>
+          <div style="font-size:11px;color:var(--tsec)">${h.rating} &#11088; (${h.reviews} reviews) &middot; ${h.price}</div>
+          <div style="font-size:11px;color:var(--tsec);margin-top:2px">Pool, kids club, free shuttle to parks</div>
+        </div>
+      </div>`;
+    document.getElementById(c).appendChild(d);
+  });
+  document.getElementById(c).scrollTop=99999;
+}
+
+// Step 4: Show packages with Affirm
+async function plPickHotel(hotel,idx){
+  plChosenHotel=hotel;
+  const c='pl-chat';
+  addTo(c,hotel,'pl-msg user');
   dotsIn(c,'pl-style');await D(1200);dotsOut(c);
 
-  if(lo.includes('kid')||lo.includes('family')||lo.includes('affordable')||lo.includes('vacation')){
-    addTo(c,"A family of 4\u2014how fun! I found three great packages for you and your kids. All include Affirm financing at 0% APR so you can spread the cost:",'pl-msg bot');
-    await D(500);
-    const pkgs=[
-      {name:"Orlando Value Package",hotel:"Holiday Inn Resort Orlando",nights:5,price:1247,mo:104,tag:"Best Value"},
-      {name:"Orlando Family Favorite",hotel:"Hilton Orlando Buena Vista",nights:5,price:1847,mo:154,tag:"Most Popular"},
-      {name:"Orlando Premium Experience",hotel:"JW Marriott Grande Lakes",nights:5,price:2690,mo:224,tag:"Premium"}
-    ];
-    pkgs.forEach((p,i)=>{
-      const d=document.createElement('div');d.className='pl-deal';d.style.animationDelay=i*100+'ms';
-      d.innerHTML=`
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div class="pl-deal-title" style="margin:0">${p.name}</div>
-          <span style="font-size:10px;background:${p.tag==='Most Popular'?'var(--priceline-blue)':'rgba(255,255,255,.08)'};padding:3px 8px;border-radius:4px;font-weight:600">${p.tag}</span>
-        </div>
-        <div class="pl-deal-row"><span class="pl-deal-label">Flights</span><span>4 round-trip, JFK &rarr; MCO</span></div>
-        <div class="pl-deal-row"><span class="pl-deal-label">Hotel</span><span>${p.hotel}, ${p.nights} nights</span></div>
-        <div class="pl-deal-row"><span class="pl-deal-label">Dates</span><span>Jul 12 &ndash; Jul 17, 2026</span></div>
-        <div class="pl-deal-row"><span class="pl-deal-label">Guests</span><span>2 adults + 3 kids</span></div>
-        <div class="pl-deal-row" style="border:none"><span class="pl-deal-label">Total</span><span style="font-weight:700;font-size:16px">$${p.price.toLocaleString()}</span></div>
-        <div class="pl-affirm-offer" onclick="plSelectPkg(${i})">
-          <div class="pl-affirm-badge">
-            <span class="pl-affirm-logo">affirm</span>
-            <span class="pl-affirm-tag">0% APR</span>
-          </div>
-          <div class="pl-affirm-terms">$${p.mo}/mo for 12 months</div>
-          <div class="pl-affirm-sub">No interest. No fees. Pay over time with Affirm.</div>
-        </div>`;
-      document.getElementById(c).appendChild(d);
-    });
-    document.getElementById(c).scrollTop=99999;
-    await D(400);
-    addTo(c,"You're pre-approved with Affirm for all three options at 0% APR. Tap any Affirm offer to book!",'pl-msg bot');
-  } else if(lo.includes('gemini')){
-    showScene(2);
-  } else {
-    addTo(c,"I can help with that! For families with kids, Orlando is our top pick\u2014amazing parks, great weather, and I can find packages with 0% financing through Affirm.",'pl-msg bot');
-    await D(300);
-    pillsTo(c,["Find affordable family vacations","Beach getaway with kids"],'pl-style','plTapPill');
-  }
+  const pkgData=[
+    {name:"Orlando Value Package",hotel:"Holiday Inn Resort Orlando",price:1247,mo:104},
+    {name:"Orlando Family Favorite",hotel:"Hilton Orlando Buena Vista",price:1847,mo:154},
+    {name:"Orlando Premium Experience",hotel:"JW Marriott Grande Lakes",price:2690,mo:224}
+  ];
+  const pkg=pkgData[idx];
+
+  addTo(c,"Here\u2019s your personalized package at "+hotel+". Flights + hotel bundled for the best price, with Affirm 0% financing:",'pl-msg bot');
+  await D(400);
+
+  const d=document.createElement('div');d.className='pl-deal';
+  d.innerHTML=`
+    <div class="pl-deal-title">${pkg.name}</div>
+    <div class="pl-deal-row"><span class="pl-deal-label">Flights</span><span>4 round-trip, JFK &rarr; MCO</span></div>
+    <div class="pl-deal-row"><span class="pl-deal-label">Hotel</span><span>${pkg.hotel}, 5 nights</span></div>
+    <div class="pl-deal-row"><span class="pl-deal-label">Dates</span><span>${plChosenDates}</span></div>
+    <div class="pl-deal-row"><span class="pl-deal-label">Guests</span><span>2 adults + 3 kids</span></div>
+    <div class="pl-deal-row" style="border:none"><span class="pl-deal-label">Total</span><span style="font-weight:700;font-size:18px">$${pkg.price.toLocaleString()}</span></div>
+    <div class="pl-affirm-offer" onclick="plSelectPkg(${idx})">
+      <div class="pl-affirm-badge">
+        <span class="pl-affirm-logo">affirm</span>
+        <span class="pl-affirm-tag">PRE-APPROVED &middot; 0% APR</span>
+      </div>
+      <div class="pl-affirm-terms">$${pkg.mo}/mo for 12 months</div>
+      <div class="pl-affirm-sub">No interest. No fees. Pay over time with Affirm.</div>
+    </div>`;
+  document.getElementById(c).appendChild(d);
+  document.getElementById(c).scrollTop=99999;
+  await D(300);
+  addTo(c,"You\u2019re pre-approved! Tap the Affirm offer to lock in your trip at $"+pkg.mo+"/mo.",'pl-msg bot');
 }
 
 const plPkgs=[
@@ -400,12 +466,6 @@ function plSelectPkg(i){
   selectedPkg=plPkgs[i];
   currentCheckoutScene='priceline';
   openSheet(selectedPkg.name,selectedPkg.price,selectedPkg.mo);
-}
-
-function plTapPill(t){
-  document.querySelectorAll('#pl-chat .pill-row').forEach(e=>e.remove());
-  addTo('pl-chat',t,'pl-msg user');
-  plRespond(t.includes('Beach')?'affordable vacation with my three kids':t);
 }
 
 async function confirmPriceline(){
@@ -431,7 +491,7 @@ async function plTap2(t){
   document.querySelectorAll('#pl-chat .pill-row').forEach(e=>e.remove());
   addTo(c,t,'pl-msg user');
   dotsIn(c,'pl-style');await D(800);dotsOut(c);
-  addTo(c,"For Adventure Kingdom day passes, I'd recommend Google Gemini\u2014it can compare options across providers and show Affirm financing on each one!",'pl-msg bot');
+  addTo(c,"For Adventure Kingdom day passes, I\u2019d recommend Google Gemini\u2014it can compare options across providers and show Affirm financing on each one!",'pl-msg bot');
   await D(300);
   pillsTo(c,["Search for deals on Gemini"],'pl-style','plTap2');
 }
