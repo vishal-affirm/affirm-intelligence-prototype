@@ -479,7 +479,7 @@
     </div>
 
     <!-- Plan balance -->
-    <div class="plan-balance">
+    <div class="plan-balance" id="plan-balance-text">
       Your total plan balance is <strong>$1,283.72</strong> with<br>
       <strong>$150.97</strong> due this month &rsaquo;
     </div>
@@ -562,6 +562,36 @@
         <div class="prod-name">Sony WH-1000XM5</div>
         <div class="prod-sub">As low as $33/mo</div>
         <div class="prod-apr">0% APR options</div>
+      </div>
+    </div>
+    <!-- Recent transactions -->
+    <div class="section-card">
+      <div class="sec-hd">
+        <div class="sec-tt">Recent transactions</div>
+        <div class="sec-sa">See all <svg width="7" height="12" fill="none"><path d="M1 1l5 5-5 5" stroke="#9090ae" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div id="txn-list">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;background:#1a1a3a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#9090ae">W</div>
+            <div><div style="font-weight:600;font-size:13px">Wayfair</div><div style="font-size:11px;color:var(--text-sec)">Apr 1 &middot; Payment plan &middot; 5 of 12</div></div>
+          </div>
+          <div style="text-align:right"><div style="font-weight:700;font-size:13px">$540.00</div><div style="font-size:10px;color:var(--text-sec)">$45/mo</div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;background:#1a1a3a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px">&#9201;</div>
+            <div><div style="font-weight:600;font-size:13px">Apple Watch SE</div><div style="font-size:11px;color:var(--text-sec)">Mar 15 &middot; Payment plan &middot; 8 of 12</div></div>
+          </div>
+          <div style="text-align:right"><div style="font-weight:700;font-size:13px">$528.00</div><div style="font-size:10px;color:var(--text-sec)">$44/mo</div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;background:#1a1a3a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px">&#128188;</div>
+            <div><div style="font-weight:600;font-size:13px">Amazon</div><div style="font-size:11px;color:var(--text-sec)">Mar 2 &middot; Completed</div></div>
+          </div>
+          <div style="text-align:right"><div style="font-weight:700;font-size:13px;color:#00d68f">Paid</div><div style="font-size:10px;color:var(--text-sec)">$89.99</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -844,14 +874,84 @@ function go(){document.getElementById('C').classList.remove('go-r');document.bod
 function launch(t){document.getElementById('C').classList.remove('go-r');document.body.style.overflow='hidden';if(!MS.children.length)setTimeout(()=>{ab(t,'me');resp(t);},300);else{ab(t,'me');resp(t);}}
 function back(){document.getElementById('C').classList.add('go-r');document.body.style.overflow='';}
 
-function os(item){document.getElementById('sL').innerHTML=item.img?'<img src="'+item.img+'" alt="">':'';document.getElementById('sN').textContent=item.n;document.getElementById('sP').textContent='$'+item.p;document.getElementById('sT').textContent='$'+item.p+'.00';document.getElementById('sPl').innerHTML=item.mo>0?'<strong>$'+item.mo+'.00 every month for '+Math.ceil(item.p/item.mo)+' months</strong>':'<strong>Pay now &mdash; $'+item.p+'</strong>';document.getElementById('ov').classList.add('on');document.getElementById('sh').classList.add('on');}
-function cs(){document.getElementById('ov').classList.remove('on');document.getElementById('sh').classList.remove('on');}
-function buy(){cs();setTimeout(()=>{
-  const price=parseInt(document.getElementById('sP').textContent.replace(/\$/g,'').replace(/,/g,''));
+let planBalance=1283.72, monthlyDue=150.97, pendingItem=null;
+
+function updateHomeBalances(){
+  const pb=document.getElementById('plan-balance-text');
+  if(pb)pb.innerHTML='Your total plan balance is <strong>$'+planBalance.toFixed(2)+'</strong> with<br><strong>$'+monthlyDue.toFixed(2)+'</strong> due this month &rsaquo;';
+}
+
+function addTransaction(name,price,mo){
+  const list=document.getElementById('txn-list');
+  if(!list)return;
+  const today=new Date();
+  const dateStr=today.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);animation:pop .3s ease';
+  row.innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:36px;height:36px;background:#1a1a3a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px">&#128722;</div>
+      <div>
+        <div style="font-weight:600;font-size:13px">${name}</div>
+        <div style="font-size:11px;color:var(--text-sec)">${dateStr} &middot; Payment plan &middot; ${mo>0?Math.ceil(price/mo)+' payments':''}</div>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-weight:700;font-size:13px">$${price.toLocaleString()}</div>
+      <div style="font-size:10px;color:#00d68f">${mo>0?'$'+mo+'/mo':'Paid'}</div>
+    </div>`;
+  list.prepend(row);
+}
+
+function completePurchase(name,price,mo){
   ppVal-=price;
+  planBalance+=price;
+  monthlyDue+=mo;
   document.querySelector('.pp-val').childNodes[0].textContent='$'+ppVal.toLocaleString();
+  updateHomeBalances();
+  addTransaction(name,price,mo);
   if(window.parent!==window)window.parent.postMessage({type:'ppUpdate',value:ppVal},'*');
-  const s=document.createElement('div');s.className='suc-card';s.innerHTML='<div class="suc-tt">&#10003; Purchase confirmed</div><div class="suc-bd">Your order is on its way. Your purchasing power is now <strong>$'+ppVal.toLocaleString()+'</strong>. Want to keep shopping for your trip?</div>';MS.appendChild(s);MS.scrollTop=MS.scrollHeight;setTimeout(()=>apl(["Keep shopping","Show updated budget","That's all for now"]),400);},500);}
+}
+
+function os(item){
+  pendingItem=item;
+  document.getElementById('sL').innerHTML=item.img?'<img src="'+item.img+'" alt="">':'';
+  document.getElementById('sN').textContent=item.n;
+  document.getElementById('sP').textContent='$'+item.p;
+  document.getElementById('sT').textContent='$'+item.p+'.00';
+  const mo6=Math.ceil(item.p/6),mo12=Math.ceil(item.p/12),mo24=Math.ceil(item.p/24);
+  document.getElementById('sPl').innerHTML=`
+    <div style="font-size:12px;color:var(--text-sec);margin-bottom:8px">Choose your plan:</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div onclick="buyPlan(6,${mo6})" style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;cursor:pointer">
+        <div><strong>$${mo6}/mo</strong><span style="font-size:11px;color:var(--text-sec)"> &middot; 6 months &middot; 0% APR</span></div>
+      </div>
+      <div onclick="buyPlan(12,${mo12})" style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(74,74,244,.06);border:1px solid rgba(74,74,244,.25);border-radius:10px;cursor:pointer">
+        <div><strong>$${mo12}/mo</strong><span style="font-size:11px;color:var(--text-sec)"> &middot; 12 months &middot; 0% APR</span></div>
+        <span style="font-size:9px;background:var(--indigo);color:white;padding:2px 6px;border-radius:4px;font-weight:700">POPULAR</span>
+      </div>
+      <div onclick="buyPlan(24,${mo24})" style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;cursor:pointer">
+        <div><strong>$${mo24}/mo</strong><span style="font-size:11px;color:var(--text-sec)"> &middot; 24 months &middot; 0% APR</span></div>
+      </div>
+    </div>`;
+  document.getElementById('ov').classList.add('on');
+  document.getElementById('sh').classList.add('on');
+}
+function cs(){document.getElementById('ov').classList.remove('on');document.getElementById('sh').classList.remove('on');}
+
+function buyPlan(months,mo){
+  if(!pendingItem)return;
+  cs();
+  setTimeout(()=>{
+    completePurchase(pendingItem.n,pendingItem.p,mo);
+    const s=document.createElement('div');s.className='suc-card';
+    s.innerHTML='<div class="suc-tt">&#10003; Plan created!</div><div class="suc-bd"><strong>'+pendingItem.n+'</strong> &mdash; $'+mo+'/mo for '+months+' months at 0% APR.<br><br>Added to your plans. Purchasing power: <strong>$'+ppVal.toLocaleString()+'</strong>.</div>';
+    MS.appendChild(s);MS.scrollTop=MS.scrollHeight;
+    setTimeout(()=>apl(["Keep shopping","Show updated budget","That's all for now"]),400);
+    pendingItem=null;
+  },500);
+}
+function buy(){if(pendingItem)buyPlan(12,Math.ceil(pendingItem.p/12));}
 function w(ms){return new Promise(r=>setTimeout(r,ms));}
 
 // Purchasing power - can be set by parent frame via postMessage
@@ -908,9 +1008,7 @@ function appConfetti(){
 }
 
 function showAppCongrats(name,price,mo){
-  ppVal-=price;
-  document.querySelector('.pp-val').childNodes[0].textContent='$'+ppVal.toLocaleString();
-  if(window.parent!==window)window.parent.postMessage({type:'ppUpdate',value:ppVal},'*');
+  completePurchase(name,price,mo);
   document.getElementById('appCongratsBody').textContent='Your '+name+' is on its way!';
   document.getElementById('appCongratsDetails').innerHTML=
     '<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#9090ae">Item</span><span>'+name+'</span></div>'+
