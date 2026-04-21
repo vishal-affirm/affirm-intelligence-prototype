@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Affirm Intelligence</title>
+<title>Affirm Affordability Assistant</title>
 <style>
 
   :root {
@@ -427,7 +427,7 @@
 <div class="gate" id="gate">
   <div class="gate-box">
     <div class="gate-logo">affirm</div>
-    <div class="gate-sub">Intelligence Prototype</div>
+    <div class="gate-sub">Affordability Assistant</div>
     <input class="gate-input" id="gateInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')unlock()">
     <button class="gate-btn" onclick="unlock()">Continue</button>
     <div class="gate-err" id="gateErr"></div>
@@ -637,7 +637,7 @@
   <div class="chat-top">
     <div class="back-btn" onclick="back()"><svg width="10" height="18" fill="none"><path d="M9 1L1 9l8 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div>
-      <div class="chat-nm">Affirm Intelligence</div>
+      <div class="chat-nm">Affirm Affordability Assistant</div>
       <div class="chat-st"><svg width="6" height="6"><circle cx="3" cy="3" r="3" fill="#00d68f"/></svg> Online</div>
     </div>
   </div>
@@ -719,7 +719,7 @@ const fl={
   doubles:{hi:"Here are the top-rated double strollers among park visitors\u2014all under $900 with 0% APR.",it:cat.doubles,then:"The Zoe Twin is the lightest at 19 lbs. The UPPAbaby is premium but the best ride quality.",pl:["Compare top 2","Which fits a car trunk?","Best for newborn + toddler"]},
   sunglasses:{hi:"Here are sunglasses options\u2014a mix of styles and prices, all within your purchasing power.",it:cat.sunglasses,then:"The Goodr is $25\u2014perfect for a park day. The Ray-Bans are a classic investment.",pl:["Polarized only","Under $50","Sport style"]},
   coolers:{hi:"Great choice for the park! Here are coolers that fit your budget.",it:cat.coolers,then:"The Coleman is $55\u2014pay now, no plan needed. The Yeti keeps ice 5+ days.",pl:["Biggest capacity","Under $100","With wheels"]},
-  welcome:{hi:"Hi Amanda! I\u2019m your Affirm Intelligence assistant. I can help you find the best deals across 220K+ merchants, check what you can afford, or plan your next purchase. What\u2019s on your mind?",pl:["Get ready for Orlando trip","What all can I afford?","My financial summary","My payment schedule"]}
+  welcome:{hi:"Hi Amanda! I\u2019m your Affirm Affordability Assistant assistant. I can help you find the best deals across 220K+ merchants, check what you can afford, or plan your next purchase. What\u2019s on your mind?",pl:["Get ready for Orlando trip","What all can I afford?","My financial summary","My payment schedule"]}
 };
 
 function intent(t){const l=t.toLowerCase();
@@ -1044,7 +1044,7 @@ async function runAffordabilityDemo(){
   MS.innerHTML='';
   await w(500);
 
-  ab("Hi Amanda! I\u2019m your Affirm Intelligence assistant. I can help you find the best deals, check what you can afford, or plan your next purchase.",'bot');
+  ab("Hi Amanda! I\u2019m your Affirm Affordability Assistant assistant. I can help you find the best deals, check what you can afford, or plan your next purchase.",'bot');
   await waitForEnter();
 
   await typeInChat("What all can I afford?");
