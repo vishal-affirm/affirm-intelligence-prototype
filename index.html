@@ -1031,6 +1031,13 @@ function closeAppCongrats(){
 
 function removePills(){document.querySelectorAll('.pls').forEach((e,i,a)=>{if(i===a.length-1)e.remove();});}
 
+function waitForEnter(){
+  return new Promise(resolve=>{
+    function handler(e){if(e.key==='Enter'){document.removeEventListener('keydown',handler);resolve();}}
+    document.addEventListener('keydown',handler);
+  });
+}
+
 async function runAffordabilityDemo(){
   document.getElementById('C').classList.remove('go-r');
   document.body.style.overflow='hidden';
@@ -1038,21 +1045,21 @@ async function runAffordabilityDemo(){
   await w(500);
 
   ab("Hi Amanda! I\u2019m your Affirm Intelligence assistant. I can help you find the best deals, check what you can afford, or plan your next purchase.",'bot');
-  await w(1500);
+  await waitForEnter();
 
   await typeInChat("What all can I afford?");
   await resp("What all can I afford?");
-  await w(3500);
+  await waitForEnter();
 
   removePills();
   await typeInChat("Show me my payment schedule");
   await resp("My payment schedule");
-  await w(3000);
+  await waitForEnter();
 
   removePills();
   await typeInChat("How can I improve my purchasing power?");
   await resp("Tips to save");
-  await w(3500);
+  await waitForEnter();
 
   removePills();
   await typeInChat("What strollers can I afford for my trip?");
